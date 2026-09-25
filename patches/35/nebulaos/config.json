@@ -1,0 +1,79 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "use_stock_init": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "Analytics_ZTE",
+                "UmeBrowser",
+                "NubiaGif_RedMagic",
+                "NubiaGameLab",
+                "NubiaGameNotes",
+                "NBMagicVoice-Zte",
+                "HealthyUseDevice",
+                "AfterSaleCalib*",
+                "DtsUltra",
+                "GameAssist",
+                "EMode",
+                "LinkSpeedup",
+                "Stk",
+                "cnStk",
+                "Recorder_MFV"
+            ],
+            "priv-app": [
+                "AlipayService",
+                "CameraBurn",
+                "KidsZone*",
+                "NeoPay",
+                "NeoGame",
+                "NubiaCamera",
+                "NubiaGPUDrivers",
+                "NubiaHealthy",
+                "Wallet*",
+                "ZTEHeartRate*",
+                "GifMaker*",
+                "HaloBaseApp*",
+                "AppRelay",
+                "TencentNLP",
+                "Search_MFV",
+                "ZteAigc",
+                "ZTEAfterSale",
+                "Tag",
+                "NubiaDiyaod",
+                "RedTeaService"
+            ]
+        },
+        "product": {
+            "priv-app": [
+                "AndroidAutoStub"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "RecommendZTE"
+            ],
+            "partner-app": [
+                "kidszone*",
+                "NubiaBaiduSearch",
+                "NubiaBiliBili",
+                "NubiaCtrip",
+                "NubiaGDMap",
+                "NubiaHuya",
+                "NubiaIReader",
+                "NubiaUCBrowser",
+                "QQMusicLite",
+                "RedTeaApp",
+                "SmartHome",
+                "TencentDocs",
+                "zmall_APP_CN",
+                "NotePad-nubia",
+                "UserGuide",
+                "ztebbs"
+            ],
+            "preinstallapp": [
+                "*"
+            ]
+        }
+    }
+}

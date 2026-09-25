@@ -1,0 +1,50 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "debloat": {
+        "system": {
+            "priv-app": [
+                "DiagSwitch",
+                "LedTest",
+                "LocalTransport",
+                "ONS",
+                "TagGoogle",
+                "NothingSoundRecorder",
+                "NTCamera"
+            ]
+        },
+        "product": {
+            "app": [
+                "Drive",
+                "Gmail2",
+                "Keep",
+                "Maps",
+                "Meet",
+                "Photos",
+                "RideModeAudio",
+                "SpeechServicesByGoogle",
+                "Videos",
+                "YTMusic",
+                "YouTube"
+            ],
+            "priv-app": [
+                "CarrierServices",
+                "FamilyLinkParentalControls",
+                "HealthConnect",
+                "Velvet",
+                "AndroidAutoStub"
+            ]
+        },
+        "system_ext": {
+            "priv-app": [
+                "GoogleFeedback",
+                "LogKit",
+                "NothingBpfService",
+                "NothingOfflineOtaUpdate",
+                "QAS_DVC_MSP",
+                "dpmserviceapp",
+                "qcrilmsgtunnel"
+            ]
+        }
+    }
+}

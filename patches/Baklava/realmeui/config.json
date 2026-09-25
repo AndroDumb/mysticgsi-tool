@@ -1,0 +1,156 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "use_stock_init": true,
+    "debloat": {
+        "my_bigball": {
+            "app": [
+                "AssistantScreen",
+                "Google_Lens",
+                "Photos",
+                "OplusPhoneActivation",
+                "Browser",
+                "Pictorial",
+                "Google_Wallet",
+                "Keep",
+                "Omoji",
+                "Facebook-appmanager",
+                "Google_AssistantShell",
+                "MusicLink",
+                "talkback"
+            ],
+            "del-app": [
+                "*"
+            ],
+            "del-app-pre": [
+                "*"
+            ],
+            "priv-app": [
+                "GlobalSearch",
+                "Facebook-*",
+                "KeKeMarket"
+            ]
+        },
+        "my_heytap": {
+            "app": [
+                "ARCore",
+                "Melody",
+                "Maps",
+                "SpeechServicesByGoogle",
+                "YouTube",
+                "talkback",
+                "Gmail2"
+            ],
+            "priv-app": [
+                "Velvet",
+                "AndroidAutoStub",
+                "FamilyLinkParentalControls"
+            ]
+        },
+        "my_product": {
+            "app": [
+                "AONService",
+                "OplusCamera",
+                "AudioEffectCenter",
+                "Baidu*",
+                "Colorx",
+                "HeartRateDetect"
+            ],
+            "del-app": [
+                "HeytapReader",
+                "Consumer*",
+                "HotGamesFolder"
+            ],
+            "priv-app": [
+                "HotwordEnrollment*",
+                "SystemClone"
+            ]
+        },
+        "my_stock": {
+            "app": [
+                "Aod",
+                "OplusOperationManual",
+                "RomUpdate",
+                "ViewTalk",
+                "AIUnit",
+                "SecurePay",
+                "OppoCompass2",
+                "KeKePay",
+                "Music",
+                "NewSoundRecorder",
+                "ChildrenSpace",
+                "FloatAssistant",
+                "HealthCheck",
+                "Karaoke",
+                "TasWallet",
+                "Browser",
+                "Instant",
+                "OcrScanner"
+            ],
+            "del-app": [
+                "BackupAndRestore",
+                "KeKeUserCenterMember",
+                "OPBreathMode",
+                "OppoNote2",
+                "OppoRelax",
+                "OplusEmail",
+                "OplusDocumentsReader",
+                "OPPOStore",
+                "NewSoundRecorder",
+                "Health",
+                "SoftsimRedteaRoaming",
+                "BrowserVideo",
+                "OplusQuickGame",
+                "FinShellWallet",
+                "UPTsmService",
+                "Melody",
+                "OppoTranslation",
+                "RMStoreCN",
+                "RMCommCN",
+                "RMrealmeLinkExp_region"
+            ],
+            "priv-app": [
+                "Cota",
+                "Games",
+                "GlobalSearch",
+                "HeySynergy",
+                "KeKeUserCenter",
+                "MDSService",
+                "Metis",
+                "ONet",
+                "OplusBootReg",
+                "SOSHelper",
+                "LinktoWindows",
+                "VideoGallery",
+                "UMS",
+                "OPSynergy",
+                "LockAssistant",
+                "HeyCast",
+                "OCar",
+                "OShare",
+                "HeyTapSpeechAssist",
+                "FindMyPhone"
+            ]
+        },
+        "system": {
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "Tag"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "BTtestmode",
+                "CrashBox",
+                "LogKit",
+                "ModemTestBox",
+                "NetworkAssistSys",
+                "OplusEngineerCamera",
+                "QCC",
+                "wifirftest",
+                "OplusCommercialEngineerCamera"
+            ]
+        }
+    }
+}

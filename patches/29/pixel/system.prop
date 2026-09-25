@@ -1,0 +1,9 @@
+
+ro.setupwizard.mode=DISABLED
+ro.boot.vendor.overlay.theme=com.google.android.theme.pixel
+ro.config.ringtone=The_big_adventure.ogg
+ro.config.notification_sound=Popcorn.ogg
+ro.config.alarm_alert=Bright_morning.ogg
+persist.sys.overlay.pixelrecents=true
+persist.sys.overlay.photness=true
+qemu.hw.mainkeys=0

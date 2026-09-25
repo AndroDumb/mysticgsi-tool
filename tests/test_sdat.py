@@ -1,0 +1,28 @@
+import os
+
+import brotli
+
+from tools.extractor.formats import sdat
+
+BLK = sdat.BLOCK_SIZE
+
+
+def test_split_brotli_dat_follows_transfer_list(tmp_path):
+    blocks = [os.urandom(BLK) for _ in range(4)]
+    data = brotli.compress(b"".join(blocks))
+    half = len(data) // 2
+    (tmp_path / "system.new.dat.br.0").write_bytes(data[:half])
+    (tmp_path / "system.new.dat.br.1").write_bytes(data[half:])
+    (tmp_path / "system.transfer.list").write_text(
+        "4\n10\n0\n0\n"
+        "erase 2,0,10\n"
+        "new 4,6,8,1,2\n"
+        "zero 2,2,6\n"
+        "new 2,9,10\n")
+
+    out = tmp_path / "system.img"
+    assert sdat.sdat_to_img(str(tmp_path / "system.transfer.list"), str(out))
+
+    zero = bytes(BLK)
+    assert out.read_bytes() == (zero + blocks[2] + zero * 4 + blocks[0]
+                                + blocks[1] + zero + blocks[3])

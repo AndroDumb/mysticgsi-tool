@@ -1,0 +1,21 @@
+ro.build.system_root_image=true
+ro.support_one_handed_mode=true
+persist.sys.binary_xml=false
+persist.logd.logpersistd.buffer=0
+ro.opengles.version=196610
+persist.sys.disable_rescue=true
+ro.control_privapp_permissions=disable
+ro.cp_system_other_odex=0
+ro.nnapi.extensions.deny_on_product=true
+
+# Force ADB
+persist.sys.usb.config=adb,mtp
+ro.adb.secure=0
+ro.secure=0
+ro.debuggable=1
+
+# Some devices have sdcardfs kernel panicing on 8.0, Disable for everyone for the moment
+ro.sys.sdcardfs=0
+
+# Crypto metadata
+ro.crypto.metadata_init_delete_all_keys.enabled=false

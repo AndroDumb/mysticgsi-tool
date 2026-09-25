@@ -1,0 +1,2 @@
+/(vendor|system/vendor)/lib(64)?/vndk-sp(/.*)?		u:object_r:vndk_sp_file:s0
+/system/bin/wpa_supplicant			u:object_r:hal_wifi_supplicant_default_exec:s0

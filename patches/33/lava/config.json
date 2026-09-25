@@ -1,0 +1,35 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "MDMConfig"
+            ],
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "PriFactoryTest"
+            ]
+        },
+        "product": {
+            "app": [
+                "Drive",
+                "Gmail2",
+                "Keep",
+                "Maps",
+                "Meet",
+                "Photos",
+                "SpeechServicesByGoogle",
+                "YouTube",
+                "YTMusic",
+                "talkback",
+                "Videos"
+            ],
+            "priv-app": [
+                "AndroidAutoStub",
+                "FamilyLinkParentalControls",
+                "Velvet"
+            ]
+        }
+    }
+}

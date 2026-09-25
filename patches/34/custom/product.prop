@@ -1,0 +1,41 @@
+ 
+# Mystic starts here.
+
+# DroidX
+ro.droidx.maintainer=Mystic GSI
+
+# RisingOS
+ro.rising.maintainer=Mystic GSI
+
+# RiceDroid
+ro.rice.maintainer=Mystic GSI
+
+# SuperiorOS
+ro.spos.maintainer=Mystic GSI
+
+# LegionOS
+ro.legion.maintainer=Mystic GSI
+
+# SkylineUI
+ro.skylineui.maintainer=Mystic GSI
+
+# CherishOS
+ro.cherish.maintainer=Mystic GSI
+
+# LessAOSP
+ro.lessaosp.maintainer=Mystic GSI
+
+# PixelStar
+ro.pixelstar.maintainer=Mystic GSI
+
+# MikuUI
+ro.miku.maintainer=Mystic GSI
+
+# GhostDroid
+ro.ghost.maintainer=Mystic GSI
+
+# ProjectMatrixx
+ro.matrixx.maintainer=Mystic GSI
+
+# SparkOS
+ro.spark.maintainer=Mystic GSI

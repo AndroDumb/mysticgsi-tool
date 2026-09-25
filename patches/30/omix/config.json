@@ -1,0 +1,22 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "YTMusic",
+                "YouTube",
+                "talkback",
+                "Maps",
+                "Keep",
+                "GoogleTTS",
+                "Drive",
+                "Duo",
+                "Gmail2"
+            ],
+            "priv-app": [
+                "AndroidAutoStub",
+                "Velvet"
+            ]
+        }
+    }
+}

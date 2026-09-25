@@ -1,0 +1,21 @@
+MysticGSI
+Copyright 2024-2026 The MysticGSI Authors (see AUTHORS)
+
+This product includes software developed by The Android Open Source Project
+(tools/extractor/formats/update_metadata.proto, derived from
+system/update_engine; tools/image/mke2fs.conf).
+
+Files under patches/ that were taken from vendor firmware (APKs, shared
+libraries, APEXes and other binaries) remain the property of their
+respective owners and are not covered by the Apache License.
+
+Most of patches/all/ comes from the TrebleDroid project by Pierre-Hugues
+Husson (phh) and contributors: rw-system.sh and the phh init scripts,
+system/phh/, the device overlays under product/overlay/ and
+device_overlay/, and the TrebleApp permissions. Upstream:
+https://github.com/TrebleDroid/device_phh_treble
+https://github.com/TrebleDroid/vendor_hardware_overlay
+https://github.com/TrebleDroid/treble_app
+These are published without a license. They remain the property of their
+authors, are included with credit, and are not covered by the Apache
+License.

@@ -1,0 +1,26 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "Drive",
+                "Gmail2",
+                "Maps",
+                "MeetGo",
+                "Videos",
+                "YTMusic",
+                "YouTube",
+                "talkback",
+                "VishaPlayer",
+                "SpeechServicesByGoogle"
+            ],
+            "priv-app": [
+                "AHAGames",
+                "AssistantGo",
+                "MetaServices",
+                "MetaAppInstaller",
+                "FamilyLinkParentalControls"
+            ]
+        }
+    }
+}

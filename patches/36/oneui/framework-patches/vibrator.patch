@@ -1,0 +1,202 @@
+--- smali_classes2/com/android/server/vibrator/VibratorController$NativeWrapper.smali
++++ smali_classes2/com/android/server/vibrator/VibratorController$NativeWrapper.smali
+@@ -180,11 +180,7 @@
+ .method public final getAmplitudeList(I)[I
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->getAmplitudeList(JI)[I
+-
+-    move-result-object p0
++    const p0, 0x0
+ 
+     return-object p0
+ .end method
+@@ -216,11 +212,7 @@
+ .method public final hasFeature(Ljava/lang/String;)Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->hasFeature(JLjava/lang/String;)Z
+-
+-    move-result p0
++    const/4 p0, 0
+ 
+     return p0
+ .end method
+@@ -377,81 +369,49 @@
+ .method public final setAmplitude(F)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setAmplitude(JF)V
+-
+     return-void
+ .end method
+ 
+ .method public final setExternalControl(Z)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setExternalControl(JZ)V
+-
+     return-void
+ .end method
+ 
+ .method public final setFoldState(Z)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setFoldState(JZ)V
+-
+     return-void
+ .end method
+ 
+ .method public final setForceTouchAmplitude(J)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1, p2}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setForceTouchAmplitude(JJ)V
+-
+     return-void
+ .end method
+ 
+ .method public final setFrequencyType(J)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1, p2}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setFrequencyType(JJ)V
+-
+     return-void
+ .end method
+ 
+ .method public final setIntensity(J)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1, p2}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setIntensity(JJ)V
+-
+     return-void
+ .end method
+ 
+ .method public final setTentState(Z)V
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1, p1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->setTentState(JZ)V
+-
+     return-void
+ .end method
+ 
+ .method public final supportIntensityControl()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportIntensityControl(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -459,11 +419,7 @@
+ .method public final supportsEnhancedSamsungHapticPattern()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsEnhancedSamsungHapticPattern(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -471,11 +427,7 @@
+ .method public final supportsFoldState()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsFoldState(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -483,11 +435,7 @@
+ .method public final supportsFrequencyControl()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsFrequencyControl(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -495,11 +443,7 @@
+ .method public final supportsHapticEngine()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsHapticEngine(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -507,11 +451,7 @@
+ .method public final supportsHasFeature()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsHasFeature(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -519,11 +459,7 @@
+ .method public final supportsPrebakedHapticPattern()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsPrebakedHapticPattern(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+@@ -531,11 +467,7 @@
+ .method public final supportsTentState()Z
+     .locals 2
+ 
+-    iget-wide v0, p0, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->mNativePtr:J
+-
+-    invoke-static {v0, v1}, Lcom/android/server/vibrator/VibratorController$NativeWrapper;->supportsTentState(J)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method

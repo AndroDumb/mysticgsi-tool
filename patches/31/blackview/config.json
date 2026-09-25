@@ -1,0 +1,43 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "DKFeedback",
+                "DKHelper",
+                "IncarPcbTest",
+                "moffice"
+            ],
+            "preloadapp": [
+                "*"
+            ],
+            "priv-app": [
+                "DKCopyLog",
+                "DKNotePad",
+                "ONS",
+                "TagGoogle",
+                "LocalTransport"
+            ]
+        },
+        "product": {
+            "app": [
+                "Drive",
+                "Duo",
+                "Gmail2",
+                "Keep",
+                "Maps",
+                "Photos",
+                "PlayBook",
+                "talkback",
+                "Videos",
+                "YouTube*",
+                "YTMusic"
+            ],
+            "priv-app": [
+                "AndroidAutoStub",
+                "CarrierServices",
+                "Velvet"
+            ]
+        }
+    }
+}

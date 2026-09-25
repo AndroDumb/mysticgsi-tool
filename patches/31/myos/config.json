@@ -1,0 +1,68 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "DtsUltra",
+                "GooglePay",
+                "GoogleNews",
+                "Recorder_MFV_abroad",
+                "facebook-appmanager",
+                "EMode",
+                "AfterSaleCalibrationTool_arcsoft",
+                "ZTGPAServer"
+            ],
+            "priv-app": [
+                "zswitch_stockplus",
+                "facebook-services",
+                "handservice_stockplus",
+                "dm_mfv",
+                "ONS",
+                "LocalTransport",
+                "TagGoogle",
+                "EasyMode_MFV"
+            ]
+        },
+        "product": {
+            "app": [
+                "Photos",
+                "Maps",
+                "Gmail2",
+                "YouTube",
+                "SpeechServicesByGoogle",
+                "Duo",
+                "YTMusic",
+                "Alarming_MFV_abroad",
+                "Drive",
+                "talkback",
+                "Videos",
+                "Keep",
+                "RideModeAudio",
+                "AssistantShell"
+            ],
+            "priv-app": [
+                "Velvet",
+                "SearchSelector",
+                "AndroidAutoStub",
+                "CarrierServices"
+            ]
+        },
+        "system_ext": {
+            "priv-app": [
+                "ZTE_Camera",
+                "vta",
+                "GoogleFeedback",
+                "com.qualcomm.location",
+                "qcrillmsgtunnel",
+                "dpmserviceapp"
+            ],
+            "partner-app": [
+                "moffice_GW",
+                "umeBrowser_GW",
+                "instagram",
+                "facebook-messenger",
+                "facebook"
+            ]
+        }
+    }
+}

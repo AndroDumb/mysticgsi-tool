@@ -1,0 +1,71 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "AudioRecorder",
+                "Drive",
+                "Duo",
+                "EuiccPartnerApp",
+                "facebook*",
+                "Gmail2",
+                "GoogleOne",
+                "Maps",
+                "MotCamera3AI",
+                "Photos",
+                "talkback",
+                "SpeechServicesByGoogle",
+                "Videos",
+                "YouTube",
+                "YTMusic",
+                "YTMusicSetupWizard"
+            ],
+            "preinstall": [
+                "*"
+            ],
+            "priv-app": [
+                "AmazonAppManager",
+                "AMXGlobalContainer",
+                "AndroidAutoStub",
+                "BRApps2",
+                "CarrierServices",
+                "facebook-*",
+                "GoogleAssistant",
+                "GuideMe",
+                "HotwordEnrollment*",
+                "InvisibleNet",
+                "MotCamera4",
+                "MotoAppForecast",
+                "MotoFeedbackAssistant",
+                "MotoHelp",
+                "MotoTour",
+                "SearchSelector",
+                "Velvet"
+            ]
+        },
+        "system": {
+            "app": [
+                "LocalTransport",
+                "ONS",
+                "TagGoogle"
+            ],
+            "priv-app": [
+                "MotoDolby*",
+                "MotoSignature*"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "QCC"
+            ],
+            "priv-app": [
+                "3c_ota",
+                "GoogleFeedback",
+                "Fota",
+                "MotoCare",
+                "qcrilmsgtunnel",
+                "dpmserviceapp"
+            ]
+        }
+    }
+}

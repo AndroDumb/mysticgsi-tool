@@ -1,0 +1,10 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "com.wolfsonmicro.ez2control"
+            ]
+        }
+    }
+}

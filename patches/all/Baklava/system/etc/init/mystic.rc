@@ -1,0 +1,13 @@
+
+# MYSTIC GSI !
+
+on post-fs-data
+    rm /data/boot_lc_main.txt
+    start boot_lc_main
+
+service boot_lc_main /system/bin/logcat -f /data/boot_lc_main.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot

@@ -1,0 +1,123 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "debloat": {
+        "my_bigball": {
+            "app": [
+                "AssistantScreen",
+                "Google_Lens",
+                "Photos",
+                "OplusPhoneActivation",
+                "Browser",
+                "Pictorial",
+                "Google_Wallet",
+                "Keep",
+                "Omoji",
+                "Facebook-appmanager",
+                "Google_AssistantShell",
+                "MusicLink"
+            ],
+            "del-app": [
+                "*"
+            ],
+            "del-app-pre": [
+                "*"
+            ],
+            "priv-app": [
+                "GlobalSearch",
+                "Facebook-*",
+                "KeKeMarket"
+            ]
+        },
+        "my_heytap": {
+            "app": [
+                "ARCore",
+                "Melody",
+                "Maps",
+                "SpeechServicesByGoogle",
+                "YouTube",
+                "talkback",
+                "Gmail2"
+            ],
+            "priv-app": [
+                "Velvet",
+                "AndroidAutoStub",
+                "FamilyLinkParentalControls"
+            ]
+        },
+        "my_product": {
+            "app": [
+                "AONService",
+                "OplusCamera",
+                "AudioEffectCenter"
+            ],
+            "priv-app": [
+                "HotwordEnrollment*"
+            ]
+        },
+        "my_stock": {
+            "app": [
+                "Aod",
+                "OplusOperationManual",
+                "RomUpdate",
+                "ViewTalk",
+                "AIUnit",
+                "SecurePay",
+                "OppoCompass2",
+                "KeKePay",
+                "Music",
+                "NewSoundRecorder",
+                "ChildrenSpace",
+                "FloatAssistant",
+                "HealthCheck",
+                "Karaoke"
+            ],
+            "del-app": [
+                "BackupAndRestore",
+                "KeKeUserCenterMember",
+                "OPBreathMode",
+                "OppoNote2",
+                "OppoRelax"
+            ],
+            "priv-app": [
+                "Cota",
+                "Games",
+                "GlobalSearch",
+                "HeySynergy",
+                "KeKeUserCenter",
+                "MDSService",
+                "Metis",
+                "ONet",
+                "OplusBootReg",
+                "SOSHelper",
+                "LinktoWindows",
+                "VideoGallery",
+                "UMS",
+                "OPSynergy",
+                "LockAssistant",
+                "HeyCast"
+            ]
+        },
+        "system": {
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "Tag"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "BTtestmode",
+                "Athena",
+                "CrashBox",
+                "LogKit",
+                "ModemTestBox",
+                "NetworkAssistSys",
+                "OplusEngineerCamera",
+                "QCC",
+                "wifirftest",
+                "OplusCommercialEngineerCamera"
+            ]
+        }
+    }
+}

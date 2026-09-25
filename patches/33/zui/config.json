@@ -1,0 +1,26 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "preinstall": [
+                "Youku",
+                "XuiRecorder"
+            ],
+            "priv-app": [
+                "ZuiCamera*",
+                "ZuiXlog",
+                "ONS",
+                "Tag",
+                "LocalTransport",
+                "LenovoOTA",
+                "ZuiBrowser"
+            ]
+        },
+        "product": {
+            "app": [
+                "talkback",
+                "Music"
+            ]
+        }
+    }
+}

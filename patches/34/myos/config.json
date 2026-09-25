@@ -1,0 +1,75 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "UmeBrowser",
+                "Videoeditor_Nubia",
+                "DtsUltra",
+                "Analytics_ZTE",
+                "GifMaker_Nubia",
+                "NubiaGif_RedMagic",
+                "Stk",
+                "LinkSpeedup"
+            ],
+            "priv-app": [
+                "Search_MFV",
+                "CameraBurn",
+                "NeoPay",
+                "NubiaCamera",
+                "ZTEHeartRate_MFV",
+                "Wallet*",
+                "AlipayService",
+                "NubiaGPUDrivers",
+                "AppRelay",
+                "HaloBaseApp_Baidu",
+                "NubiaHealthy",
+                "TencentNLP"
+            ]
+        },
+        "product": {
+            "priv-app": [
+                "AndroidAutoStub"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "DtsUltra",
+                "Analytics_ZTE",
+                "GifMaker_Nubia",
+                "NubiaGif_RedMagic",
+                "Stk",
+                "LinkSpeedup"
+            ],
+            "partner-app": [
+                "NubiaHuya",
+                "NubiaIReader",
+                "NotePad-Nubia",
+                "NubiaBaiduSearch",
+                "NubiaBiliBili",
+                "NubiaGDMap",
+                "kidszone_mfv",
+                "NubiaCtrip",
+                "InfraredCoolControl",
+                "YunTing",
+                "zmall_APP_CN",
+                "SmartHome",
+                "RedTeaApp",
+                "NubiaUCBrowser",
+                "NBMagicVoice-Zte"
+            ],
+            "preinstallapp": [
+                "Weibo"
+            ],
+            "priv-app": [
+                "AlipayService",
+                "NubiaGPUDrivers",
+                "AppRelay",
+                "HaloBaseApp_Baidu",
+                "NubiaHealthy",
+                "TencentNLP"
+            ]
+        }
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "debloat": {
+        "system": {
+            "priv-app": [
+                "ONS",
+                "LocalTransport",
+                "TagGoogle"
+            ]
+        },
+        "product": {
+            "app": [
+                "Drive",
+                "Keep",
+                "Meet",
+                "talkback",
+                "Maps",
+                "Photos",
+                "Music"
+            ],
+            "priv-app": [
+                "CarrierServices",
+                "DiagMon",
+                "Velvet"
+            ]
+        },
+        "system_ext": {
+            "priv-app": [
+                "grilservice",
+                "OmniJaws",
+                "qcrilmsgtunnel",
+                "BlissUpdater",
+                "MatLog",
+                "GcamGo",
+                "Updater"
+            ]
+        }
+    }
+}

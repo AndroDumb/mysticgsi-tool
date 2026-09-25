@@ -1,0 +1,7 @@
+
+# Logcat 
+logd.logpersistd=logcatd 
+logd.logpersistd.buffer=all 
+logd.logpersistd.enable=true 
+logd.logpersistd.size=1024 
+logd.logpersistd.size.rotate=64

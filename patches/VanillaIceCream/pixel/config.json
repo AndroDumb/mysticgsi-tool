@@ -1,0 +1,65 @@
+{
+    "no_device_overlays": true,
+    "use_stock_init": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "YouTubeMusicPrebuilt",
+                "YouTube",
+                "VZWAPNLib",
+                "Videos",
+                "Tycho",
+                "SoundAmplifierPrebuilt",
+                "PrebuiltGmail",
+                "Photos",
+                "NgaResources",
+                "Maps",
+                "GoogleTTS",
+                "GoogleCamera",
+                "Drive",
+                "PixelCameraServicesBarbet",
+                "DevicePolicyPrebuilt",
+                "talkback"
+            ],
+            "priv-app": [
+                "Velvet",
+                "TurboPrebuilt",
+                "SSRestartDetector",
+                "SprintDM",
+                "ScribePrebuilt",
+                "RecorderPrebuilt*",
+                "OTAConfigNoZeroTouchPrebuilt",
+                "KidsSupervisionStub",
+                "HelpRtcPrebuilt",
+                "DCMO",
+                "ConnMO",
+                "BetaFeedback",
+                "GoogleCamera",
+                "WfcActivation",
+                "DevicePolicyPrebuilt",
+                "Euicc*",
+                "PixelCameraServices"
+            ]
+        },
+        "system": {
+            "app": [
+                "Stk"
+            ],
+            "priv-app": [
+                "TagGoogle"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "com.qualcomm.qti.services.secureui"
+            ],
+            "priv-app": [
+                "HbmSVManager",
+                "grilservice",
+                "Euicc*",
+                "MyVerizonServices",
+                "YadaYada"
+            ]
+        }
+    }
+}

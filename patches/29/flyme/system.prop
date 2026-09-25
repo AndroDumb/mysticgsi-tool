@@ -1,0 +1,3 @@
+
+# Disable bootprof
+ro.bootprof.disable=1

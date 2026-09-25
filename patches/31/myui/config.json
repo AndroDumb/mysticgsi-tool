@@ -1,0 +1,17 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "MotoSignature2App",
+                "MotoSignatureApp"
+            ],
+            "priv-app": [
+                "Bug2GoStub",
+                "LocalTransport",
+                "ONS",
+                "TagGoogle"
+            ]
+        }
+    }
+}

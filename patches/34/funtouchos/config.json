@@ -1,0 +1,72 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "AIEngine",
+                "ARCoreStub0",
+                "AlphaCamera",
+                "BBKNotes",
+                "BBKMusic",
+                "BBKSoundRecorder",
+                "CleanSpeed",
+                "GoogleLensTier2",
+                "GlobalSearch",
+                "VivoCamera",
+                "vivoDemoVideo",
+                "vivogame",
+                "vivoScan",
+                "VivoGallery",
+                "VivoAssistant",
+                "Plant",
+                "VLife_vivo",
+                "VideoEditor",
+                "VideoPlayer",
+                "VivoUnionPayEx",
+                "facebook-appmanager",
+                "VivoWebsite",
+                "NovaJarvis",
+                "Feedback",
+                "BBKLog",
+                "GameCube",
+                "GameWatch",
+                "VivoTips",
+                "GalleryWidget",
+                "BBKCrontab",
+                "LogSystem",
+                "SmartKey",
+                "Tag"
+            ],
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "facebook-*",
+                "VivoOffice",
+                "VivoShare",
+                "VivoLpa",
+                "VivoBrowser"
+            ]
+        },
+        "product": {
+            "app": [
+                "Gmail2",
+                "GoogleAssistant",
+                "GooglePay",
+                "Maps",
+                "Meet",
+                "Photos",
+                "SpeechServicesByGoogle",
+                "YTMusic",
+                "YouTube",
+                "talkback"
+            ],
+            "priv-app": [
+                "AndroidAutoStub",
+                "FamilyLinkParentalControls",
+                "HotwordEnrollment*",
+                "Velvet",
+                "SearchSelector"
+            ]
+        }
+    }
+}

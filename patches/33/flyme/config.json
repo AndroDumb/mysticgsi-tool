@@ -1,0 +1,61 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "MzPay",
+                "MzShare",
+                "XjCamera",
+                "WPS_Meizu_Version",
+                "TelephonyEngineerMode"
+            ],
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "XjTag",
+                "FlymeGallery",
+                "Feedback",
+                "Search"
+            ],
+            "MzApp": [
+                "Email",
+                "FamilyGuard",
+                "FlymeMusic",
+                "FlymeSoundRecorder",
+                "GameCenter",
+                "MeizuPay",
+                "MzStore",
+                "Pedometer",
+                "TodoList",
+                "Video",
+                "VideoClips",
+                "VoiceAssistant",
+                "datamigration",
+                "mCareNew",
+                "mzbbs",
+                "RemoteCooperation",
+                "MusicFX",
+                "NetContactService"
+            ],
+            "framework": [
+                "meizu-telephony-common.jar"
+            ]
+        },
+        "product": {
+            "app": [
+                "RideModeAudio"
+            ],
+            "custom/3rd-party/apk": [
+                "CamScanner",
+                "WPSoffice",
+                "baidu",
+                "bilibili",
+                "ximalaya"
+            ],
+            "custom/3rd-party/apk2": [
+                "Weibo",
+                "amap"
+            ]
+        }
+    }
+}

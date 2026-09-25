@@ -1,0 +1,43 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "priv-app": [
+                "ONS",
+                "LocalTransport",
+                "TagGoogle"
+            ]
+        },
+        "product": {
+            "app": [
+                "Drive",
+                "Keep",
+                "Meet",
+                "Jellyfish",
+                "Jelly",
+                "talkback",
+                "Maps",
+                "Photos",
+                "Music"
+            ],
+            "priv-app": [
+                "AndroidAutoStubPrebuilt",
+                "CarrierServices",
+                "DiagMon",
+                "HotwordEnrollmentXGoogleRT5514P",
+                "Velvet"
+            ]
+        },
+        "system_ext": {
+            "priv-app": [
+                "grilservice",
+                "OmniJaws",
+                "qcrilmsgtunnel",
+                "BlissUpdater",
+                "MatLog",
+                "GcamGo",
+                "Updater"
+            ]
+        }
+    }
+}

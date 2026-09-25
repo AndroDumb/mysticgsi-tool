@@ -1,0 +1,97 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "AiLifeHm",
+                "AirSharing",
+                "FindMyPhone",
+                "HAware",
+                "GameKit",
+                "HuaweiShare",
+                "HwAirlink",
+                "HwCallRecorder",
+                "HwCloudDrive",
+                "HwCloudDriveFaHm",
+                "HwDMSDP",
+                "HwDetectRepair",
+                "HwIAware",
+                "HwInstantOnline",
+                "HwJetPack",
+                "HwLives",
+                "HwLocalBoneVoiceUI",
+                "HwMMITest",
+                "HwMapFeature",
+                "HwMemoSpaceSync",
+                "HwNearby",
+                "HwOUC",
+                "HwOneKeyLockHm",
+                "HwParentControl",
+                "HwPrintService",
+                "HwPrivateSpace",
+                "HwVAssistant",
+                "HwVideoEditor",
+                "HwVideoEditorFACard",
+                "HwWallet",
+                "HwWalletFAHm",
+                "HwWifiProBqeService",
+                "MyCenter",
+                "Pengine",
+                "iConnect",
+                "SoundRecorder"
+            ],
+            "priv-app": [
+                "HiCar",
+                "HiCard",
+                "HiCinemaFA",
+                "HiMovie",
+                "HiMoviePartner2",
+                "HiMovieSohu",
+                "HiMovieTencent",
+                "HiSearch",
+                "HiSearchHm",
+                "HiSpace",
+                "HiSuggestion",
+                "HiSuggestionHm",
+                "HwCameraKit",
+                "HwEmailHm",
+                "HwDiagnosis",
+                "HwMagazine",
+                "HwMirror",
+                "HwMirrorHm",
+                "HwMusicLocal",
+                "HwMusic_cloudHm",
+                "HwNotePadHm",
+                "HwPCAssistant",
+                "HwSoundRecorderHm",
+                "ONS",
+                "Tag",
+                "HwVIdeoKit",
+                "com.qualcomm.location"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "QCC"
+            ]
+        },
+        "hw_product": {
+            "app": [
+                "Gallery2",
+                "HwAOD",
+                "HwCamera2",
+                "HwCameraHm",
+                "HwDistributedPasteboard",
+                "HwEasyGo",
+                "HwFidoAsm",
+                "HwGameAssistant",
+                "HwMeetimeHm",
+                "HwPCExplorer",
+                "HwPCSystemUI",
+                "HwSearchService",
+                "PhotosHm",
+                "iConnect"
+            ]
+        }
+    }
+}

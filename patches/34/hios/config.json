@@ -1,0 +1,76 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "priv-app": [
+                "LocalTransport",
+                "ONS"
+            ]
+        },
+        "product": {
+            "app": [
+                "ChromeAssistant",
+                "EmojiKeyboard",
+                "GoogleAssistant",
+                "HiBrowser",
+                "Maps",
+                "VishaPlayer",
+                "XShare",
+                "YTMusic",
+                "YouTube",
+                "talkback",
+                "Phoenix",
+                "MetaAppManager",
+                "Gmail2",
+                "DualApp",
+                "SpeechServicesByGoogle",
+                "MoonPhases",
+                "SmartMessage"
+            ],
+            "priv-app": [
+                "AHAGames",
+                "ARCore",
+                "AndroidAutoStub",
+                "Carlcare",
+                "FamilyLinkParentalControls",
+                "MetaAppInstaller",
+                "MetaServices",
+                "PalmStore",
+                "Velvet"
+            ],
+            "operator/app": [
+                "Boomplay",
+                "Drive",
+                "EtalaseApps",
+                "FacebookStub",
+                "Meet",
+                "PalmPay",
+                "Photos",
+                "Spotify",
+                "TikTok*",
+                "TranCompassApk",
+                "Videos",
+                "WPSOffice",
+                "Welife"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "AIVoice*",
+                "AfterSaleCalibrationTool",
+                "AiGallery",
+                "CameraTestTool",
+                "Ewarrantycard",
+                "ManualGuide",
+                "TranssionCamera",
+                "gf_display_test",
+                "TranssionNotes",
+                "TranssionFMRadio",
+                "WelinkService",
+                "SmartScan",
+                "SmartAssistant",
+                "PhoneMaster"
+            ]
+        }
+    }
+}

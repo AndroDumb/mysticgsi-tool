@@ -1,0 +1,11 @@
+--- smali_classes2/com/samsung/android/knoxguard/service/utils/Utils.smali
++++ smali_classes2/com/samsung/android/knoxguard/service/utils/Utils.smali
+@@ -1350,7 +1350,7 @@
+ .method public static isSupportKGOnSEC()Z
+     .locals 1
+ 
+-    const/4 v0, 0x1
++    const/4 v0, 0x0
+ 
+     return v0
+ .end method

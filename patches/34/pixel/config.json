@@ -1,0 +1,61 @@
+{
+    "use_stock_init": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "YouTubeMusicPrebuilt",
+                "YouTube",
+                "VZWAPNLib",
+                "Videos",
+                "Tycho",
+                "SoundAmplifierPrebuilt*",
+                "PrebuiltGmail",
+                "Photos",
+                "NgaResources",
+                "Maps",
+                "GoogleTTS",
+                "GoogleCamera",
+                "Drive",
+                "PixelCameraServicesBarbet",
+                "DevicePolicyPrebuilt*"
+            ],
+            "priv-app": [
+                "SCONE*",
+                "Velvet",
+                "TurboPrebuilt",
+                "SSRestartDetector",
+                "SprintDM",
+                "ScribePrebuilt*",
+                "RecorderPrebuilt",
+                "OTAConfigNoZeroTouchPrebuilt",
+                "KidsSupervisionStub",
+                "HotwordEnrollmentXGoogleRT5514P",
+                "HotwordEnrollmentOKGoogleRT5514P",
+                "HelpRtcPrebuilt",
+                "DCMO",
+                "ConnMO",
+                "BetaFeedback",
+                "GoogleCamera",
+                "WfcActivation",
+                "DevicePolicyPrebuilt*"
+            ]
+        },
+        "system": {
+            "priv-app": [
+                "TagGoogle"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "com.qualcomm.qti.services.secureui"
+            ],
+            "priv-app": [
+                "HbmSVManager",
+                "grilservice",
+                "Euicc*",
+                "MyVerizonServices",
+                "YadaYada"
+            ]
+        }
+    }
+}

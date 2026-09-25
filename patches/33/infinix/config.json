@@ -1,0 +1,47 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "product": {
+            "app": [
+                "ChromeAssistant",
+                "DtsAudio",
+                "DualApp",
+                "FpFactory_Q_MEM",
+                "Gmail2",
+                "GoogleAssistant",
+                "HiBrowser",
+                "HiTranslate",
+                "Maps",
+                "MetaAppManager",
+                "Party",
+                "Photos",
+                "SpeechServicesByGoogle",
+                "VishaPlayer",
+                "Wallet",
+                "XClub",
+                "XPARK",
+                "YTMusic",
+                "YouTube",
+                "talkback"
+            ],
+            "priv-app": [
+                "AHAGames",
+                "Carlcare",
+                "CarrierServices",
+                "OSIcon",
+                "XShareMini",
+                "Velvet",
+                "TEOP"
+            ]
+        },
+        "system": {
+            "priv-app": [
+                "LocalTransport",
+                "ONS",
+                "VoiceCommand",
+                "VoiceUnlock",
+                "EngineerMode"
+            ]
+        }
+    }
+}

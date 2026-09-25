@@ -1,0 +1,81 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "use_stock_init": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "AirSharing",
+                "HuaweiShare",
+                "HwAirlink",
+                "HwDetectRepair",
+                "Stk",
+                "SoundRecorder",
+                "iConnect",
+                "HwPanPayService",
+                "HwParentControl",
+                "HwOneKeyLockHm",
+                "HwVideoEditor",
+                "HwIAware",
+                "HwInstantOnline",
+                "HwJetPack",
+                "HwNearby",
+                "HwMMITest"
+            ],
+            "priv-app": [
+                "HwNotePadHm",
+                "HwPCAssistant",
+                "HwMusic*",
+                "HwMirror",
+                "HwEmuiManual*",
+                "HwEmailHm",
+                "LocalTransport",
+                "ONS",
+                "Tag",
+                "com.qualcomm.location",
+                "zfoundation",
+                "HwVideoKit",
+                "HwStartupGuide",
+                "HwSoundRecorderHm",
+                "HwAudioKit",
+                "HwCameraKit",
+                "HwDiagnosis",
+                "HiMovie*",
+                "HiCard",
+                "HwCardManager"
+            ],
+            "delapp": [
+                "HwBackup",
+                "HwPhoneClone"
+            ]
+        },
+        "hw_product": {
+            "app": [
+                "Gallery2",
+                "HwCamera*",
+                "HwEasyGo",
+                "HwGameAssistant",
+                "HwHealthHm",
+                "HwMeetimeHm",
+                "PhotosHm",
+                "HwPC*"
+            ],
+            "region_comm/app": [
+                "HuaweiAREngine",
+                "HwDocs_ove",
+                "HwRideMode",
+                "HwSearch_cloudHm",
+                "HwWallet",
+                "HwVAssistant_OVE",
+                "Kika",
+                "HwHiAiEngine",
+                "HwMaps",
+                "GameBox",
+                "HwRead"
+            ],
+            "region_comm/china/app": [
+                "HwHiAiEngine"
+            ]
+        }
+    }
+}

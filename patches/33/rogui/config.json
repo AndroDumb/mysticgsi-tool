@@ -1,0 +1,60 @@
+{
+    "no_device_overlays": true,
+    "debloat": {
+        "system": {
+            "app": [
+                "Amight",
+                "ArmouryCrateAR",
+                "AsusBoost",
+                "AsusHBM",
+                "BacaPlus",
+                "Blibli",
+                "FFBE",
+                "Facebook",
+                "FacebookAppManager",
+                "FacebookMessenger",
+                "GameCenterService",
+                "Instagram",
+                "NePlayer",
+                "SARProtection",
+                "SMMI_TOOL",
+                "TwinApps",
+                "mangaDeals",
+                "iFilter",
+                "koeitecmo",
+                "slaservice"
+            ],
+            "priv-app": []
+        },
+        "product": {
+            "app": [
+                "ASUSAR",
+                "Gmail2",
+                "Maps",
+                "SpeechServicesByGoogle",
+                "YTMusic",
+                "YouTube",
+                "talkback"
+            ],
+            "priv-app": [
+                "AndroidAutoStub",
+                "CarrierServices",
+                "FamilyLinkParentalControls",
+                "HotwordEnrollmentOKGoogleHEXAGON_WIDEBAND",
+                "HotwordEnrollmentXGoogleHEXAGON_WIDEBAND",
+                "SearchSelector",
+                "Velvet"
+            ]
+        },
+        "system_ext": {
+            "app": [
+                "QCC",
+                "datastatusnotification"
+            ],
+            "priv-app": [
+                "dpmserviceapp",
+                "qcrillmsgtunnel"
+            ]
+        }
+    }
+}

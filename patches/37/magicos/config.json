@@ -1,0 +1,45 @@
+{
+    "no_device_overlays": true,
+    "add_vendor_stuff": true,
+    "use_stock_init": true,
+    "debloat": {
+        "product_h": {
+            "region_comm/china/app": [
+                "VoiceEngine",
+                "VisionEngine",
+                "MagicHome",
+                "HnHealthApp",
+                "HnOffice",
+                "HnCamera2",
+                "HnRecordAssistant",
+                "HnRoamingRed",
+                "HnReaderDz",
+                "NewCallSdk"
+            ]
+        },
+        "system": {
+            "priv-app": [
+                "MagicVoice",
+                "HnVideoEditor",
+                "HnNotePad",
+                "HiBoard",
+                "GameCenter",
+                "MicrosoftYourPhoneCompanion",
+                "GameAssistant",
+                "HonorLens",
+                "HonorWallet",
+                "HnDetectRepair",
+                "HnCollectCenter"
+            ],
+            "app": [
+                "HnMusicCloudmusic",
+                "BaiduInput_for_Honor",
+                "HnVideoYouku",
+                "HihonorAssistant",
+                "SpeechServicesByGoogle",
+                "HonorChoice",
+                "HihonorAwareness"
+            ]
+        }
+    }
+}
