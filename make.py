@@ -1366,9 +1366,6 @@ class RomPorter:
     def _architecture(self):
         if self.is_64bit_only:
             return "64-bit only"
-        if self.programs_32bit_only:
-            return ("32/64-bit, needs 32-bit support ("
-                    f"{', '.join(self.programs_32bit_only)})")
         return "32/64-bit"
 
     def _is_android_version(self, target: int | str) -> bool:
