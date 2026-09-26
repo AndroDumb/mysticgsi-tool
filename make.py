@@ -609,7 +609,10 @@ class RomPorter:
             # Ask me anything!
             'verity_key',
             'init.recovery*',
-            'recovery-from-boot.*'
+            'recovery-from-boot.*',
+            # Left in the image by some repacking tools; with no SELinux
+            # label for it, e2fsdroid refuses to build the image.
+            '.unpacked.done',
         ]
 
         for file in useless_files:
