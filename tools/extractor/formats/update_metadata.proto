@@ -58,6 +58,7 @@ message PartitionInfo {
 
 message PartitionUpdate {
   required string partition_name = 1;
+  optional PartitionInfo old_partition_info = 6;
   optional PartitionInfo new_partition_info = 7;
   repeated InstallOperation operations = 8;
 }

@@ -14,10 +14,12 @@ BLK = 4096
 Op = pb.InstallOperation
 
 
-def _write_payload(path, ops, minor_version=0, raw_ops=()):
+def _write_payload(path, ops, minor_version=0, raw_ops=(), old_info=False):
     """ops: [(type, data, [(start_block, num_blocks)])]"""
     manifest = pb.DeltaArchiveManifest(minor_version=minor_version)
     part = manifest.partitions.add(partition_name="system")
+    if old_info:
+        part.old_partition_info.size = BLK
     blobs = b""
     for op_type, data, extents in ops:
         op = part.operations.add(type=op_type, data_offset=len(blobs),
@@ -33,16 +35,19 @@ def _write_payload(path, ops, minor_version=0, raw_ops=()):
         f.write(manifest_raw + blobs)
 
 
-def test_full_payload_places_every_op(tmp_path):
+# Partial updates (OnePlus/OPPO full OTAs) have a non-zero minor version.
+@pytest.mark.parametrize("minor_version", [0, 9])
+def test_full_payload_places_every_op(tmp_path, minor_version):
     a, b, c, d = (os.urandom(BLK) for _ in range(4))
-    _write_payload(tmp_path / "payload.bin", [
+    ops = [
         (Op.REPLACE, a, [(0, 1)]),
         (Op.REPLACE_BZ, bz2.compress(b + c), [(5, 1), (2, 1)]),
         (Op.ZERO, b"", [(3, 2)]),
         (Op.REPLACE_XZ, lzma.compress(d), [(6, 1)]),
         (Op.REPLACE, zstandard.ZstdCompressor(write_content_size=False)
          .compress(a), [(1, 1)]),
-    ])
+    ]
+    _write_payload(tmp_path / "payload.bin", ops, minor_version)
 
     payload.extract_payload(str(tmp_path / "payload.bin"), str(tmp_path))
 
@@ -59,15 +64,15 @@ def _partition_with_op_type(value):
 
 
 @pytest.mark.parametrize("kind, reason", [
-    ("minor_version", "incremental OTA (minor version 8)"),
+    ("old_info", "system has source partition info"),
     ("diff_op", "SOURCE_COPY operation in system"),
     ("unknown_op", "Unknown operation type in system"),
 ])
 def test_incremental_payload_fails_extraction(tmp_path, kind, reason):
     path = tmp_path / "payload.bin"
-    if kind == "minor_version":
+    if kind == "old_info":
         _write_payload(path, [(Op.REPLACE, bytes(BLK), [(0, 1)])],
-                       minor_version=8)
+                       minor_version=8, old_info=True)
     elif kind == "diff_op":
         _write_payload(path, [(Op.SOURCE_COPY, b"", [(0, 1)])])
     else:

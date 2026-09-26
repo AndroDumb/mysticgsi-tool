@@ -158,10 +158,15 @@ def extract_payload(
 
         manifest = pb.DeltaArchiveManifest()
         manifest.ParseFromString(manifest_raw)
-        if manifest.minor_version != 0:
+        # update_engine treats old_partition_info as the sole sign of a
+        # delta. minor_version isn't one: partial updates, as in OnePlus
+        # and OPPO full OTAs, set it while replacing whole partitions.
+        delta = next((p.partition_name for p in manifest.partitions
+                      if p.HasField('old_partition_info')), None)
+        if delta:
             raise PayloadError(
-                "payload.bin is an incremental OTA (minor version "
-                f"{manifest.minor_version}), which needs the source build. "
+                f"{delta} has source partition info: payload.bin is an "
+                "incremental OTA, which needs the source build. "
                 "Use a full OTA package instead.")
         block_size = manifest.block_size
 
