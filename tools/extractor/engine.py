@@ -69,6 +69,11 @@ def _unpack_outer_archive(archive_path, staging_dir, targets, log):
             _unpack_outer_archive(dec_zip, staging_dir, targets, log)
             _remove(dec_zip)
             continue
+        if name.lower().endswith('.zip') and archive.is_archive(path):
+            # e.g. Huawei's dload/update_sd_base.zip holding UPDATE.APP.
+            _unpack_outer_archive(path, staging_dir, targets, log)
+            _remove(path)
+            continue
         nested = next((f for f in NESTED_FORMATS if f[0](path)), None)
         if nested:
             log(f"Extracting nested package {name}...")
