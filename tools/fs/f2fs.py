@@ -19,6 +19,9 @@ SUMMARY_JOURNAL_SIZE = 507
 F2FS_MAGIC = 0xF2F52010
 COMPRESS_ADDR = 0xfffffffe
 COMPRESS_HEADER_SIZE = 24
+XATTR_MAGIC = 0xf2f52011
+XATTR_SECURITY_INDEX = 6
+XATTR_HEADER_SIZE = 24
 
 
 class F2FSError(Exception):
@@ -214,6 +217,39 @@ class F2FSFilesystem:
         if _u32(node, 80) & 0x04 and extra_size < 36:
             raise F2FSError(f"inode {nid} has no compression attributes")
         return node, extra, count
+
+    def selinux_label(self, inode):
+        node, extra, count = inode
+        xattr_nid = _u32(node, 76)
+        inline_size = (INODE_ADDRS - extra - count) * 4
+        if not inline_size and not xattr_nid:
+            return None
+        start = INODE_ADDR_OFFSET + (INODE_ADDRS - inline_size // 4) * 4
+        data = node[start:start + inline_size]
+        if xattr_nid:
+            xattr_node = self._node(xattr_nid)
+            if _u32(xattr_node, NODE_FOOTER_OFFSET + 4) != (
+                    _u32(node, NODE_FOOTER_OFFSET)):
+                raise F2FSError("xattr node has the wrong owner")
+            data += xattr_node[:NODE_FOOTER_OFFSET]
+        if len(data) < XATTR_HEADER_SIZE or data[:4] == b'\0' * 4:
+            return None
+        if _u32(data, 0) != XATTR_MAGIC:
+            raise F2FSError("invalid F2FS xattr header")
+        pos = XATTR_HEADER_SIZE
+        while pos + 4 <= len(data):
+            index, name_len, value_len = struct.unpack_from(
+                '<BBH', data, pos)
+            if not index and not name_len and not value_len:
+                return None
+            end = pos + 4 + name_len + value_len
+            if end > len(data):
+                raise F2FSError("truncated F2FS xattr entry")
+            if (index == XATTR_SECURITY_INDEX
+                    and data[pos + 4:pos + 4 + name_len] == b'selinux'):
+                return data[pos + 4 + name_len:end].rstrip(b'\0')
+            pos = (end + 3) & ~3
+        raise F2FSError("missing F2FS xattr terminator")
 
     def _direct_addresses(self, nid, cluster_size):
         count = ADDRS_PER_BLOCK - ADDRS_PER_BLOCK % cluster_size

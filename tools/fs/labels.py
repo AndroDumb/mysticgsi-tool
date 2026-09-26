@@ -1,5 +1,5 @@
 """
-Reads the SELinux label of every file in an ext4 or EROFS image straight
+Reads the SELinux label of every file in an ext4, EROFS, or F2FS image straight
 from its metadata, without extracting anything.
 """
 
@@ -10,6 +10,7 @@ import struct
 
 from .ext4 import Ext4Error, Ext4Filesystem
 from .ext4.filesystem import ROOT_INODE
+from .f2fs import F2FSError, F2FSFilesystem
 
 EROFS_SUPERBLOCK_OFFSET = 1024
 EROFS_MAGIC = 0xE0F5E1E2
@@ -178,10 +179,34 @@ def _walk(fs, root) -> Dict[str, str]:
     return labels
 
 
+def _walk_f2fs(fs: F2FSFilesystem) -> Dict[str, str]:
+    labels = {}
+    visited = {fs.root_ino}
+    pending = [("", fs.root_ino)]
+    while pending:
+        path, number = pending.pop()
+        inode = fs.inode(number)
+        label = fs.selinux_label(inode)
+        if label:
+            labels[path or "/"] = label.decode('ascii', 'replace')
+        if not stat.S_ISDIR(struct.unpack_from('<H', inode[0])[0]):
+            continue
+        for name, child_number in fs.directory(inode):
+            if b'/' in name or b'\0' in name or not name:
+                raise LabelError("invalid file name")
+            child = fs.inode(child_number)
+            if stat.S_ISDIR(struct.unpack_from('<H', child[0])[0]):
+                if child_number in visited:
+                    raise LabelError("directory loop")
+                visited.add(child_number)
+            pending.append((f"{path}/{os.fsdecode(name)}", child_number))
+    return labels
+
+
 def read_labels(image_path: str, fs_type: str,
                 logger=None) -> Optional[Dict[str, str]]:
     """
-    Maps every path in an ext4 or EROFS image ("/" for its root) to its
+    Maps every path in an ext4, EROFS, or F2FS image ("/" for its root) to its
     SELinux label. Returns None if the labels can't be read.
     """
     try:
@@ -191,7 +216,10 @@ def read_labels(image_path: str, fs_type: str,
         if fs_type == "erofs":
             with _Erofs(image_path) as fs:
                 return _walk(fs, fs.read_inode(fs.root_nid))
-    except (LabelError, Ext4Error, OSError, struct.error) as e:
+        if fs_type == "f2fs":
+            with F2FSFilesystem(image_path) as fs:
+                return _walk_f2fs(fs)
+    except (LabelError, Ext4Error, F2FSError, OSError, struct.error) as e:
         if logger:
             logger(f"Could not read SELinux labels from {image_path}: {e}")
     return None

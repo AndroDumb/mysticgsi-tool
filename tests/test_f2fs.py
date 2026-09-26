@@ -4,7 +4,7 @@ import struct
 
 import lz4.block
 
-from tools.fs import unpack_filesystem
+from tools.fs import read_labels, unpack_filesystem
 from tools.fs.f2fs import _crc32
 
 
@@ -157,6 +157,51 @@ def test_f2fs_decompresses_lz4_cluster(tmp_path):
 
     assert unpack_filesystem(str(image), str(output)) == 0
     assert (output / 'hello').read_bytes() == b'A' * 5000
+
+
+def test_f2fs_reads_inline_and_external_selinux_labels(tmp_path):
+    image = tmp_path / 'system.img'
+    _image(image)
+
+    def xattr(label):
+        data = bytearray(200)
+        _put32(data, 0, 0xf2f52011)
+        struct.pack_into('<BBH', data, 24, 6, 7, len(label))
+        data[28:35] = b'selinux'
+        data[35:35 + len(label)] = label
+        return data
+
+    with image.open('r+b') as stream:
+        stream.seek(40 * BLOCK_SIZE)
+        root = bytearray(stream.read(BLOCK_SIZE))
+        _put32(root, 76, 6)
+        stream.seek(40 * BLOCK_SIZE)
+        stream.write(root)
+
+        stream.seek(41 * BLOCK_SIZE)
+        file_node = bytearray(stream.read(BLOCK_SIZE))
+        file_node[3] = 0x01
+        file_node[3852:4052] = xattr(b'u:object_r:system_file:s0')
+        stream.seek(41 * BLOCK_SIZE)
+        stream.write(file_node)
+
+        stream.seek(28 * BLOCK_SIZE)
+        nat = bytearray(stream.read(BLOCK_SIZE))
+        _put32(nat, 6 * 9 + 5, 45)
+        stream.seek(28 * BLOCK_SIZE)
+        stream.write(nat)
+
+        xattr_node = bytearray(BLOCK_SIZE)
+        xattr_node[:200] = xattr(b'u:object_r:rootfs:s0')
+        _put32(xattr_node, 4072, 6)
+        _put32(xattr_node, 4076, 3)
+        stream.seek(45 * BLOCK_SIZE)
+        stream.write(xattr_node)
+
+    assert read_labels(str(image), 'f2fs') == {
+        '/': 'u:object_r:rootfs:s0',
+        '/hello': 'u:object_r:system_file:s0',
+    }
 
 
 def test_f2fs_rejects_truncated_image(tmp_path):
