@@ -1631,12 +1631,17 @@ class RomPorter:
             return self.partition_dirs[partition]
 
         system = self.partition_dirs['system']
-
-        if os.path.exists(os.path.join(system, partition, 'etc/build.prop')):
-            return os.path.join(system, partition)
-        elif os.path.exists(os.path.join(
-                system, 'system', partition, 'etc/build.prop')):
-            return os.path.join(system, 'system', partition)
+        candidates = (os.path.join(system, partition),
+                      os.path.join(system, 'system', partition))
+        for path in candidates:
+            if os.path.exists(os.path.join(path, 'etc/build.prop')):
+                return path
+        # Some ROMs (e.g. HarmonyOS) ship product without a build.prop. The
+        # root entry is then usually an empty mountpoint or a symlink.
+        for path in candidates:
+            if (os.path.isdir(path) and not os.path.islink(path)
+                    and os.listdir(path)):
+                return path
 
         return None
 
@@ -1659,6 +1664,10 @@ class RomPorter:
             if not product:
                 raise RuntimeError("product not found")
             self.partition_dirs['product'] = product
+            # Patch sets append product props here; Android loads it if
+            # present, so an empty one is fine where the ROM has none.
+            if not self._get_partition_prop("product"):
+                fsops.touch(os.path.join(product, "etc/build.prop"))
 
             system_ext = self._find_partition_dir("system_ext")
             if system_ext:
