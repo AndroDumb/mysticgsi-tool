@@ -308,6 +308,8 @@ class RomPorter:
         self.logger = StubLogger()
         self.image_files = {}
         self.partition_dirs:dict[str, str] = {}
+        # Partition -> {path in its image: SELinux label}.
+        self.stock_labels: dict[str, dict[str, str]] = {}
         self.rom_name = safe_name(rom_name, "rom_name")
         self.rom_type = "auto"
         self.variant_tag = variant_tag
@@ -386,10 +388,14 @@ class RomPorter:
         rc = tools.unpack_filesystem(path, out, fs_type=fs, logger=self.log)
         if rc != 0:
             return -1
+        labels = tools.read_labels(path, fs, logger=self.log)
+        if labels is not None:
+            self.stock_labels[name] = labels
         return 0
 
     def _unpack_partitions(self):
         self.partition_dirs.clear()
+        self.stock_labels.clear()
         if "system" not in self.image_files:
             self.log("Firmware contains no system image")
             return -1
@@ -1802,6 +1808,8 @@ Architecture: {self._architecture()}
     def prepare(self):
         self.log("Merging dynamic partitions..")
         system_dir = self.partition_dirs['system']
+        # Partition -> where its root ended up in the system tree.
+        placements = {}
 
         for i in self.image_files:
             if i in ('system', 'vendor', 'odm'):
@@ -1822,16 +1830,32 @@ Architecture: {self._architecture()}
                     fsops.cp_r(f"{self.partition_dirs[i]}",
                                f"{system_dir}/system/{i}/")
                     fsops.symlink(f"/system/{i}", f"{system_dir}/{i}")
+                    placements[i] = f"/system/{i}"
                 else:
                     fsops.rmrf(f"{system_dir}/{i}")
                     fsops.cp_r(f"{self.partition_dirs[i]}",
                                f"{system_dir}/{i}")
+                    placements[i] = f"/{i}"
             except Exception:
                 traceback.print_exc()
 
                 return -1
 
+        self._save_stock_labels(placements)
         return 0
+
+    def _save_stock_labels(self, placements):
+        """
+        Writes the stock labels of everything merged into the system tree,
+        keyed by final path, for the image stage (and later rebuilds).
+        """
+        labels = dict(self.stock_labels.get('system', {}))
+        for part, prefix in placements.items():
+            for path, label in self.stock_labels.get(part, {}).items():
+                labels[prefix if path == "/" else prefix + path] = label
+        with open(os.path.join(self.images_dir, "stock_labels.json"), "w",
+                  encoding="utf-8") as f:
+            json.dump(labels, f)
 
     def _write_image(self, output_name):
         """
@@ -1855,6 +1879,8 @@ Architecture: {self._architecture()}
                 output_image=image,
                 system_size=system_size,
                 staging_dir=self.images_dir,
+                stock_labels_path=os.path.join(self.images_dir,
+                                               "stock_labels.json"),
                 logger=self.log
             )
             if (rc != 0 or not os.path.isfile(image)

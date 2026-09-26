@@ -3,6 +3,7 @@ Builds the ext4 system image with mke2fs and e2fsdroid.
 """
 
 from typing import Optional
+import json
 import os
 import shutil
 import subprocess
@@ -76,12 +77,15 @@ def build_system_image(
     system_size: int,
     staging_dir: Optional[str] = None,
     file_contexts_path: Optional[str] = None,
+    stock_labels_path: Optional[str] = None,
     logger=None
 ) -> int:
     """
     Builds an ext4 image of system_size bytes from source_dir. SELinux
     file_contexts are generated into staging_dir unless file_contexts_path
-    is given. Returns 0 on success.
+    is given, filling the ROM rules' gaps from stock_labels_path (a JSON
+    map of paths in source_dir to the labels their images had). Returns 0
+    on success.
     """
     log = logger or print
 
@@ -103,8 +107,13 @@ def build_system_image(
 
     work_dir = staging_dir or os.path.dirname(output_image) or "."
     if not file_contexts_path:
+        stock_labels = None
+        if stock_labels_path and os.path.isfile(stock_labels_path):
+            with open(stock_labels_path, encoding='utf-8') as f:
+                stock_labels = json.load(f)
         file_contexts_path = prepare_file_contexts(
-            source_dir, os.path.join(work_dir, "file_contexts"))
+            source_dir, os.path.join(work_dir, "file_contexts"),
+            stock_labels)
 
     blocks = system_size // BLOCK_SIZE
     if blocks <= 0:

@@ -2,8 +2,9 @@
 SELinux file_contexts generation for the system image.
 """
 
-from typing import List, Optional
+from typing import Callable, Dict, List, Optional
 import os
+import re
 
 EXTRA_FILE_CONTEXTS: List[str] = [
     r"/firmware(/.*)?         u:object_r:firmware_file:s0",
@@ -140,10 +141,66 @@ def _read_contexts(path: str) -> List[str]:
     return [line for line in lines if line and not line.startswith('#')]
 
 
-def prepare_file_contexts(system_dir: str, output_file: str) -> Optional[str]:
+def _covered_by(contexts: List[str]) -> Callable[[str], bool]:
+    """Whether some file_contexts rule matches a path, ignoring file type
+    restrictions. Rules Python's re can't parse are left out."""
+    patterns = []
+    for line in contexts:
+        spec = line.split(None, 1)[0]
+        try:
+            re.compile(spec)
+        except re.error:
+            continue
+        patterns.append(f"(?:{spec})")
+    combined = re.compile("|".join(patterns)) if patterns else None
+    return lambda path: bool(combined and combined.fullmatch(path))
+
+
+_LITERAL_BYTES = frozenset(
+    b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/_-")
+
+
+def _literal_spec(path: str) -> str:
     """
-    Writes the ROM's own file_contexts plus EXTRA_FILE_CONTEXTS to
-    output_file. Returns None if the ROM has no file_contexts at all.
+    A file_contexts regex matching exactly path. libselinux rejects
+    non-ASCII in the file, and spaces would split the line, so those bytes
+    become \\xHH; other punctuation is backslash-escaped. Escaped characters
+    don't count as regex metacharacters, so libselinux treats the rule as
+    an exact path, which takes precedence over pattern rules.
+    """
+    out = []
+    for byte in os.fsencode(path):
+        if byte in _LITERAL_BYTES:
+            out.append(chr(byte))
+        elif 0x20 < byte < 0x7F:
+            out.append("\\" + chr(byte))
+        else:
+            out.append(f"\\x{byte:02x}")
+    return "".join(out)
+
+
+def _stock_label_gaps(system_dir: str, contexts: List[str],
+                      stock_labels: Dict[str, str]) -> List[str]:
+    """
+    Exact rules giving the paths in system_dir that no ROM rule covers the
+    label their partition image had. Paths the ROM's rules (and the patches
+    applied to them) do cover keep getting labelled by those rules.
+    """
+    covered = _covered_by(contexts)
+    return [f"{_literal_spec(path)} {label}"
+            for path, label in sorted(stock_labels.items())
+            if label and not any(c.isspace() for c in label)
+            and os.path.lexists(system_dir + path) and not covered(path)]
+
+
+def prepare_file_contexts(system_dir: str, output_file: str,
+                          stock_labels: Optional[Dict[str, str]] = None
+                          ) -> Optional[str]:
+    """
+    Writes the ROM's own file_contexts, exact rules for the paths they miss
+    from stock_labels (image path -> label), and EXTRA_FILE_CONTEXTS as a
+    last resort to output_file. Returns None if the ROM has no
+    file_contexts at all.
     """
     contexts: List[str] = []
     for s_dir in SELINUX_DIRS:
@@ -152,6 +209,8 @@ def prepare_file_contexts(system_dir: str, output_file: str) -> Optional[str]:
 
     if not contexts:
         return None
+    if stock_labels:
+        contexts += _stock_label_gaps(system_dir, contexts, stock_labels)
     contexts += EXTRA_FILE_CONTEXTS
 
     out_dir = os.path.dirname(output_file)
