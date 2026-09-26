@@ -45,10 +45,14 @@ def normalize_partition_filename(filename: str) -> str:
             name = name[:-len(suffix)] + '.img'
             break
 
+    # Partition dumps (e.g. MTK, Unisoc) name raw images <partition>.bin.
+    if name.endswith('.bin'):
+        name = name[:-4] + '.img'
+
     if name.endswith('_a.img'):
         name = name[:-6] + '.img'
 
-    if not name.endswith(('.img', '.bin')):
+    if not name.endswith('.img'):
         name += '.img'
 
     return name.lower()
@@ -163,7 +167,8 @@ def postprocess_extracted_images(
     _rebuild_sdat(staging_dir, logger)
     _merge_sparse_chunks(staging_dir, logger)
 
-    for s_img in _staged(staging_dir, "*super*.img"):
+    for s_img in (_staged(staging_dir, "*super*.img")
+                  + _staged(staging_dir, "*super*.bin")):
         if os.path.isfile(s_img):
             lp_super.unpack_super(
                 s_img, staging_dir, target_partitions=target_partitions,

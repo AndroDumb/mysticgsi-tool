@@ -1,3 +1,4 @@
+import os
 import zipfile
 
 from tools.extractor import extract_firmware, postprocess
@@ -11,6 +12,7 @@ def test_member_filter_keeps_only_what_the_pipeline_uses():
         "super.img", "super_1.img", "system.img_sparsechunk.3",
         "system.new.dat.br", "system.transfer.list", "AP_G998B.tar.md5",
         "system_X-FLASH-ALL-C93B.sin", "UPDATE.APP", "fw.kdz",
+        "vendor.bin", "super.bin",
     }
     dropped = {"modem.img", "boot.img", "NON-HLOS.bin", "xbl.elf",
                "vendor_boot.img", "system_other.img"}
@@ -32,3 +34,17 @@ def test_qfil_archives_are_not_filtered(tmp_path):
 
     assert rc == 0
     assert (tmp_path / "out" / "system.img").read_bytes() == b"\x01" * 4096
+
+
+def test_partition_dump_bin_files_become_images(tmp_path):
+    fw = tmp_path / "dump.zip"
+    with zipfile.ZipFile(fw, "w") as zf:
+        zf.writestr("system.bin", b"\x02" * 4096)
+        zf.writestr("lk.bin", b"\x03" * 4096)
+
+    rc = extract_firmware(str(fw), str(tmp_path / "out"),
+                          target_partitions=["system"], logger=lambda m: None)
+
+    assert rc == 0
+    assert os.listdir(tmp_path / "out") == ["system.img"]
+    assert (tmp_path / "out" / "system.img").read_bytes() == b"\x02" * 4096
