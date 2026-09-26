@@ -37,6 +37,7 @@
             apktool          # framework jar patches
             gnupatch
             libarchive       # bsdtar, for RAR firmware packages
+            openssl          # AVB image signing
           ];
         in
         {

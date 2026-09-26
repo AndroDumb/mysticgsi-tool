@@ -36,7 +36,7 @@ Swap `requirements.txt` for `requirements-dev.txt` if you want the dev tools.
 ```sh
 xcode-select --install
 brew install python@3.13 cmake ninja pkgconf erofs-utils brotli lz4 \
-    pcre2 libusb zstd protobuf aria2 apktool gpatch
+    pcre2 libusb zstd protobuf aria2 apktool gpatch openssl@3
 "$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python tools/build_android_tools.py
@@ -52,7 +52,7 @@ sudo apt-get install python3 python3-venv erofs-utils aria2 patch \
     default-jre-headless curl build-essential cmake ninja-build pkg-config \
     perl golang-go libgtest-dev libusb-1.0-0-dev libpcre2-dev \
     libprotobuf-dev protobuf-compiler libbrotli-dev liblz4-dev libzstd-dev \
-    libarchive-tools
+    libarchive-tools openssl
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python tools/build_android_tools.py
@@ -67,7 +67,7 @@ Then install [apktool](#apktool-on-linux).
 
 ```sh
 sudo pacman -Syu --needed python erofs-utils aria2 patch \
-    jre-openjdk-headless android-tools curl
+    jre-openjdk-headless android-tools curl openssl
 python -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
@@ -104,6 +104,16 @@ chmod +x ~/.local/bin/apktool
 `~/.local/bin` has to be on your `PATH`.
 
 ## Usage
+
+Builds and rebuilds automatically sign `system.img` with the AOSP AVB
+RSA-2048 test key and a SHA-256 hash tree before publishing the image.
+OpenSSL is required; avbtool and AOSP's test private key are bundled.
+Signing failures fail the build and preserve any previous output image.
+The reported raw image size includes the AVB metadata, and compressed
+outputs contain the signed image.
+
+These are image signatures; APK and framework signing keys are unchanged.
+A test signature does not enable booting on a locked stock bootloader.
 
 ```sh
 .venv/bin/python cli.py build <name> <firmware or URL> --type <type> [--compress]

@@ -1899,7 +1899,7 @@ Architecture: {self._architecture()}
     def _write_image(self, output_name):
         """
         Builds out/<rom_name>/<output_name>.img from the system tree, sized
-        to fit its contents. Returns the filesystem size, or None.
+        to fit its contents. Returns the signed image size, or None.
         """
         system_dir = self.partition_dirs['system']
         out_dir = f"out/{self.rom_name}"
@@ -1926,6 +1926,10 @@ Architecture: {self._architecture()}
                     or os.path.getsize(image) == 0):
                 self.log(f"Image builder failed ({rc})")
                 return None
+            self.logger.set_state("sign")
+            if tools.sign_system_image(image, logger=self.log) != 0:
+                return None
+            system_size = os.path.getsize(image)
             os.replace(image, f"{out_dir}/{output_name}.img")
 
         self.output_name = output_name
