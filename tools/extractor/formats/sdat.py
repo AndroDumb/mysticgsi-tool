@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 import io
 import lzma
 import os
+import tempfile
 
 try:
     import brotli
@@ -131,7 +132,7 @@ def _apply_commands(commands, data, output_img_path: str):
                 while to_read > 0:
                     chunk = data.read(min(to_read, MB))
                     if not chunk:
-                        break
+                        raise RuntimeError("Truncated new.dat block data")
                     out_f.write(chunk)
                     to_read -= len(chunk)
         out_f.truncate(max(out_f.tell(), max_file_size))
@@ -148,6 +149,12 @@ def sdat_to_img(transfer_list_path: str, output_img_path: str) -> bool:
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
 
-    with _open_data(pieces) as data:
-        _apply_commands(commands, data, output_img_path)
+    with tempfile.TemporaryDirectory(
+            prefix="sdat-", dir=out_dir or ".") as staging:
+        converted = os.path.join(staging, "image.img")
+        with _open_data(pieces) as data:
+            _apply_commands(commands, data, converted)
+        if os.path.getsize(converted) == 0:
+            return False
+        os.replace(converted, output_img_path)
     return os.path.getsize(output_img_path) > 0

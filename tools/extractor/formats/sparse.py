@@ -3,6 +3,7 @@
 from typing import List, Union
 import os
 import struct
+import tempfile
 
 SPARSE_HEADER_MAGIC = 0xED26FF3A
 SPARSE_HEADER_FORMAT = '<I4H4I'
@@ -61,6 +62,7 @@ def _fill(out_f, pattern: bytes, size: int, buffer_size: int) -> int:
 
 def _write_chunks(in_f, out_f, header, buffer_size: int):
     (_, _, _, file_hdr_sz, chunk_hdr_sz, blk_sz, _, total_chunks, _) = header
+    written_blocks = 0
 
     if file_hdr_sz > SPARSE_HEADER_SIZE:
         in_f.seek(file_hdr_sz - SPARSE_HEADER_SIZE, os.SEEK_CUR)
@@ -68,7 +70,7 @@ def _write_chunks(in_f, out_f, header, buffer_size: int):
     for _ in range(total_chunks):
         chunk_hdr = in_f.read(CHUNK_HEADER_SIZE)
         if len(chunk_hdr) < CHUNK_HEADER_SIZE:
-            break
+            raise RuntimeError("Truncated sparse chunk header")
 
         chunk_type, _, chunk_sz, total_sz = struct.unpack(
             CHUNK_HEADER_FORMAT, chunk_hdr)
@@ -76,18 +78,34 @@ def _write_chunks(in_f, out_f, header, buffer_size: int):
             in_f.seek(chunk_hdr_sz - CHUNK_HEADER_SIZE, os.SEEK_CUR)
 
         data_bytes = chunk_sz * blk_sz
+        if total_sz < chunk_hdr_sz:
+            raise RuntimeError("Invalid sparse chunk size")
         if chunk_type == CHUNK_TYPE_RAW:
-            _copy(in_f, out_f, total_sz - chunk_hdr_sz, buffer_size)
+            if total_sz - chunk_hdr_sz != data_bytes:
+                raise RuntimeError("Invalid sparse RAW chunk size")
+            if _copy(in_f, out_f, data_bytes, buffer_size) != data_bytes:
+                raise RuntimeError("Truncated sparse RAW chunk")
         elif chunk_type == CHUNK_TYPE_FILL:
+            if total_sz - chunk_hdr_sz != 4:
+                raise RuntimeError("Invalid sparse FILL chunk size")
             pattern = in_f.read(4)
-            if len(pattern) == 4:
-                _fill(out_f, pattern, data_bytes, buffer_size)
+            if len(pattern) != 4:
+                raise RuntimeError("Truncated sparse FILL chunk")
+            _fill(out_f, pattern, data_bytes, buffer_size)
         elif chunk_type == CHUNK_TYPE_DONT_CARE:
+            if total_sz != chunk_hdr_sz:
+                raise RuntimeError("Invalid sparse DONT_CARE chunk size")
             out_f.seek(data_bytes, os.SEEK_CUR)
         elif chunk_type == CHUNK_TYPE_CRC32:
-            in_f.read(4)
-        elif total_sz > chunk_hdr_sz:
-            in_f.seek(total_sz - chunk_hdr_sz, os.SEEK_CUR)
+            if chunk_sz or total_sz - chunk_hdr_sz != 4:
+                raise RuntimeError("Invalid sparse CRC32 chunk size")
+            if len(in_f.read(4)) != 4:
+                raise RuntimeError("Truncated sparse CRC32 chunk")
+        else:
+            raise RuntimeError(f"Unknown sparse chunk type: {chunk_type}")
+        written_blocks += chunk_sz
+    if written_blocks != header[6]:
+        raise RuntimeError("Sparse block count does not match header")
 
 
 def expand(in_f, out_f, offset: int = 0,
@@ -104,10 +122,16 @@ def expand(in_f, out_f, offset: int = 0,
     if len(header_data) == SPARSE_HEADER_SIZE:
         header = struct.unpack(SPARSE_HEADER_FORMAT, header_data)
     if header is None or header[0] != SPARSE_HEADER_MAGIC:
+        if header_data[:4] == struct.pack('<I', SPARSE_HEADER_MAGIC):
+            raise RuntimeError("Truncated sparse image header")
         in_f.seek(start)
         _copy_all(in_f, out_f, buffer_size)
         return out_f.tell()
 
+    if (header[1] != 1 or header[3] < SPARSE_HEADER_SIZE
+            or header[4] < CHUNK_HEADER_SIZE
+            or header[5] <= 0 or header[5] % 4 or buffer_size < 4):
+        raise RuntimeError("Invalid sparse image header")
     _write_chunks(in_f, out_f, header, buffer_size)
     blk_sz, total_blks = header[5], header[6]
     return max(out_f.tell(), offset + blk_sz * total_blks)
@@ -132,15 +156,19 @@ def unsparse(
         os.makedirs(out_dir, exist_ok=True)
 
     end = 0
-    with open(output_file, 'wb') as out_f:
-        for in_file in input_files:
-            with open(in_file, 'rb') as in_f:
-                # Like simg2img: every sparse file describes the whole
-                # image, so split chunks each start over from offset 0 and
-                # skip the regions the other chunks fill.
-                offset = 0 if is_sparse(in_file) else end
-                end = max(end, expand(in_f, out_f, offset, buffer_size))
-        # A trailing DONT_CARE only seeks, so extend the file explicitly.
-        out_f.truncate(end)
+    with tempfile.TemporaryDirectory(
+            prefix="unsparse-", dir=out_dir or ".") as staging:
+        converted = os.path.join(staging, "image.img")
+        with open(converted, 'wb') as out_f:
+            for in_file in input_files:
+                with open(in_file, 'rb') as in_f:
+                    # Each sparse file describes the whole image and skips
+                    # the regions supplied by the other split chunks.
+                    offset = 0 if is_sparse(in_file) else end
+                    end = max(end, expand(in_f, out_f, offset, buffer_size))
+            out_f.truncate(end)
+        if end == 0:
+            return False
+        os.replace(converted, output_file)
 
     return os.path.getsize(output_file) > 0

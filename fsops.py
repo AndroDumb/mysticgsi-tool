@@ -177,6 +177,10 @@ def cp_r(src, dst, *, clobber=True):
             continue
         target = _target(s, dst)
         if not clobber and os.path.lexists(target):
+            if (os.path.isdir(s) and not os.path.islink(s)
+                    and os.path.isdir(target) and not os.path.islink(target)):
+                for name in os.listdir(s):
+                    cp_r(os.path.join(s, name), target, clobber=False)
             continue
         if os.path.islink(s):
             if os.path.lexists(target):

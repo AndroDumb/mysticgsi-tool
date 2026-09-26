@@ -38,16 +38,17 @@ def _remove(path: str):
 
 
 def normalize_partition_filename(filename: str) -> str:
-    name = filename.strip()
+    name = filename.strip().lower()
 
     for suffix in FILENAME_SUFFIXES:
         if name.endswith(suffix):
             name = name[:-len(suffix)] + '.img'
             break
 
-    # Partition dumps (e.g. MTK, Unisoc) name raw images <partition>.bin.
-    if name.endswith('.bin'):
-        name = name[:-4] + '.img'
+    for extension in IMAGE_EXTENSIONS:
+        if name.endswith(extension):
+            name = name[:-len(extension)] + '.img'
+            break
 
     if name.endswith('_a.img'):
         name = name[:-6] + '.img'
@@ -137,7 +138,7 @@ def _finalize_image(img_path: str, dest_path: str, logger):
         if sparse.unsparse(img_path, dest_path):
             _remove(img_path)
         else:
-            shutil.move(img_path, dest_path)
+            raise RuntimeError(f"Failed to unsparse {name}")
     else:
         shutil.move(img_path, dest_path)
 
