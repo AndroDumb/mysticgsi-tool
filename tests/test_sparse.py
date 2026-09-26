@@ -1,6 +1,9 @@
 import os
 import struct
 
+import pytest
+
+from tools.extractor import extract_firmware
 from tools.extractor import postprocess
 from tools.extractor.formats import sparse
 
@@ -46,3 +49,43 @@ def test_sparsechunks_merge_in_numeric_order_per_partition(tmp_path):
     assert (tmp_path / "system_ext.img").read_bytes() == \
         b"\xab\xcd\xef\x01" * (2 * BLK // 4)
     assert sorted(os.listdir(tmp_path)) == ["system.img", "system_ext.img"]
+
+
+@pytest.mark.parametrize("kind,payload", [
+    (sparse.CHUNK_TYPE_RAW, b"x" * BLK),
+    (sparse.CHUNK_TYPE_FILL, b"abcd"),
+    (sparse.CHUNK_TYPE_CRC32, b"abcd"),
+])
+def test_truncated_sparse_keeps_previous_output(tmp_path, kind, payload):
+    blocks = 0 if kind == sparse.CHUNK_TYPE_CRC32 else 1
+    source = tmp_path / "system.img"
+    source.write_bytes(_sparse_image(blocks, [(kind, blocks, payload)])[:-1])
+    output = tmp_path / "raw.img"
+    output.write_bytes(b"previous image")
+
+    with pytest.raises(RuntimeError, match="Truncated"):
+        sparse.unsparse(str(source), str(output))
+
+    assert output.read_bytes() == b"previous image"
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "raw.img", "system.img"]
+
+
+@pytest.mark.parametrize("cut", [4, 20, 28, 35])
+def test_truncated_sparse_fails_extraction(tmp_path, cut):
+    source = tmp_path / "system.img"
+    source.write_bytes(_sparse_image(
+        1, [(sparse.CHUNK_TYPE_RAW, 1, b"x" * BLK)])[:cut])
+    output = tmp_path / "output"
+
+    assert extract_firmware(str(source), str(output)) == 1
+    assert not (output / "system.img").exists()
+
+
+def test_sparse_rejects_inconsistent_block_count(tmp_path):
+    source = tmp_path / "system.img"
+    source.write_bytes(_sparse_image(
+        2, [(sparse.CHUNK_TYPE_RAW, 1, b"x" * BLK)]))
+
+    with pytest.raises(RuntimeError, match="block count"):
+        sparse.unsparse(str(source), str(tmp_path / "output.img"))

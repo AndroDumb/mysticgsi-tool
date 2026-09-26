@@ -145,12 +145,16 @@ def extract_firmware(
             return 1
 
         log("Post-processing extracted partition images...")
-        extracted = postprocess.postprocess_extracted_images(
-            staging_dir=staging_dir,
-            output_dir=output_dir,
-            target_partitions=targets,
-            logger=log
-        )
+        try:
+            extracted = postprocess.postprocess_extracted_images(
+                staging_dir=staging_dir,
+                output_dir=output_dir,
+                target_partitions=targets,
+                logger=log
+            )
+        except RuntimeError as e:
+            log(f"Firmware post-processing failed: {e}")
+            return 1
 
         has_system = os.path.isfile(os.path.join(output_dir, "system.img"))
         if "system" not in extracted and not has_system:
