@@ -1,17 +1,17 @@
 # MysticGSI
 
-Builds a GSI (Generic System Image) out of stock firmware from almost any
-Android phone.
+Builds a GSI (Generic System Image) from stock Android firmware.
 
 Supported firmware: full OTA zips (`payload.bin`), fastboot packages and
 `super.img`, sparse images, `system.new.dat`, Samsung tars, Huawei
 `UPDATE.APP`, Unisoc `.pac`, LG `.kdz`, Oppo `.ozip`, QFIL packages, Sony
 `.sin`, and Pixel factory images. Partitions can be ext4, EROFS or F2FS
-(Linux only).
+(Linux only, requires root or sudo).
 
 ## Setup
 
-Works on macOS, Ubuntu/Debian, Arch and NixOS.
+Works on macOS, Ubuntu/Debian, Arch and NixOS. The build requires Python 3.10+.
+On macOS, install Homebrew and Xcode Command Line Tools first.
 
 ```sh
 git clone https://github.com/MysticGSI/mysticgsi.git && cd mysticgsi
@@ -21,10 +21,11 @@ git clone https://github.com/MysticGSI/mysticgsi.git && cd mysticgsi
 The script installs the system packages, creates `.venv` and makes sure
 `mke2fs.android` and `e2fsdroid` are available (building them if needed).
 It needs a `python3` to start from; on a minimal Arch install run
-`sudo pacman -S python` first. On NixOS skip it and use `nix develop`.
+`sudo pacman -S python` first. On NixOS skip it and use `nix develop`, then
+replace `.venv/bin/python` with `python3` in the commands below.
 
 You need erofs-utils 1.5+ for EROFS firmware (Ubuntu 24.04 or newer) and about
-20 GB of free space per build.
+20 GB of free space per build; larger firmware needs more.
 
 ### Manual setup
 
@@ -82,7 +83,7 @@ Then install [apktool](#apktool-on-linux), or `android-apktool-bin` from the AUR
 
 ```sh
 nix develop
-python3 cli.py build <name> <firmware>
+python3 cli.py build <name> <firmware> --type <type>
 ```
 
 </details>
@@ -99,21 +100,15 @@ curl -fL -o ~/.local/bin/apktool.jar \
 printf '#!/bin/sh\nexec java -jar "$HOME/.local/bin/apktool.jar" "$@"\n' \
     > ~/.local/bin/apktool
 chmod +x ~/.local/bin/apktool
+export PATH="$HOME/.local/bin:$PATH"
 ```
-
-`~/.local/bin` has to be on your `PATH`.
 
 ## Usage
 
-Builds and rebuilds automatically sign `system.img` with the AOSP AVB
-RSA-2048 test key and a SHA-256 hash tree before publishing the image.
-OpenSSL is required; avbtool and AOSP's test private key are bundled.
-Signing failures fail the build and preserve any previous output image.
-The reported raw image size includes the AVB metadata, and compressed
-outputs contain the signed image.
-
-These are image signatures; APK and framework signing keys are unchanged.
-A test signature does not enable booting on a locked stock bootloader.
+Builds and rebuilds sign the image with AOSP's AVB RSA-2048 test key and a
+SHA-256 hash tree. OpenSSL is required; avbtool and the key are bundled.
+Signing failures preserve the previous image. APK keys are unchanged;
+the signature does not make a locked stock bootloader accept the image.
 
 ```sh
 .venv/bin/python cli.py build <name> <firmware or URL> --type <type> [--compress]
@@ -122,9 +117,9 @@ A test signature does not enable booting on a locked stock bootloader.
 .venv/bin/python cli.py clean
 ```
 
-The image ends up in `out/<name>/`. `--compress` also zips it, `--add <tag>`
-adds a tag to the build name, and `--no-debloat` keeps the apps the ROM's patch
-set would otherwise remove.
+The image ends up in `out/<name>/`. `--compress` creates a ZIP containing
+`system.img` at its root. `--add <tag>` adds a tag to the build name, and
+`--no-debloat` keeps the apps the ROM's patch set would otherwise remove.
 
 `--type` picks the patch set for the ROM you're porting (`hyperos`, `coloros`,
 `oneui`, `pixel`, ...). See `ls patches/<sdk>` for the list. Without it only
@@ -138,11 +133,13 @@ Example:
     --type pixel --compress
 ```
 
-The build summary says whether the image is 64-bit only or 32/64-bit. 
+The build summary says whether the image is 64-bit only or 32/64-bit.
 
 To tweak a finished build, edit its system tree in `tmp/<name>/images/system/`
 (delete apps, add files) and run `cli.py rebuild <name>`. The image is
 rebuilt and resized to fit, without redoing the whole build.
+
+`clean` deletes everything under `tmp/` and `out/`.
 
 ## Development
 
@@ -153,11 +150,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 .venv/bin/python -m flake8
 ```
 
-Patch files over 50 MB are stored xz-compressed (`<name>.xz`) and unpacked
+Patch files of 50 MiB or more are stored xz-compressed (`<name>.xz`) and unpacked
 during builds. After adding one, run `./tools/assets.py pack` and commit the
-`.xz`. `./tools/assets.py status` shows what's packed.
+`.xz` files (or `.xz.000`, `.xz.001`, ... for split archives).
+`./tools/assets.py status` shows what's packed.
 
 ## License
 
-Apache License 2.0, see [LICENSE](LICENSE). Third-party files under
-`patches/` are not covered by it; see [NOTICE](NOTICE).
+Apache License 2.0, see [LICENSE](LICENSE). Bundled avbtool is MIT-licensed;
+see [tools/avb/LICENSE](tools/avb/LICENSE). Third-party files under `patches/`
+have separate terms; see [NOTICE](NOTICE).
