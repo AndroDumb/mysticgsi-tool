@@ -57,7 +57,10 @@ def extract_erofs(image_path: str, output_dir: str, logger=None) -> bool:
     out = os.path.abspath(output_dir)
 
     if tool_name == "fsck.erofs":
-        return _extracted([tool_path, f"--extract={out}", image], output_dir)
+        # Names differing only in case collide on case-insensitive hosts
+        # (macOS by default); like the ext4 extractor, let the last one win.
+        return _extracted([tool_path, f"--extract={out}", "--overwrite",
+                           image], output_dir)
 
     # extract.erofs writes into <out>/<image name>, so aim it at the parent
     # first; some builds write straight into -o instead.
