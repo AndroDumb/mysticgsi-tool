@@ -1,4 +1,4 @@
-from typing import cast, ClassVar
+from typing import ClassVar
 import os
 import json
 import datetime
@@ -80,7 +80,6 @@ def replace_image_size(text, system_size):
 patches_dir = "patches"
 tmp_dir = "tmp"
 
-
 SDK_MAP = {
     "10": "29",
     "11": "30",
@@ -116,15 +115,15 @@ AB_FILES = [
 ]
 
 USB_DEBUGGING_PROPS = [
-    (r"ro.debuggable=0", r"ro.debuggable=1"),
-    (r"ro.secure=1", r"ro.secure=0"),
-    (r"ro.adb.secure=1", r"ro.adb.secure=0"),
+    ("ro.debuggable=0", "ro.debuggable=1"),
+    ("ro.secure=1", "ro.secure=0"),
+    ("ro.adb.secure=1", "ro.adb.secure=0"),
 ]
 
 
 class SettingsProp:
     def __init__(self):
-        self.values = {}
+        self.values: dict[str, str] = {}
         self.path: str = ""
 
     def init_from_file(self, path):
@@ -133,9 +132,7 @@ class SettingsProp:
         with open(self.path, "r") as f:
             data = f.read()
             for i in data.split("\n"):
-                if i.startswith("#"):
-                    continue
-                if i == '':
+                if i.startswith("#") or not i:
                     continue
 
                 key, sep, value = i.partition("=")
@@ -143,18 +140,15 @@ class SettingsProp:
                     self.values[key] = value
 
     def get_value(self, key) -> str | None:
-        if key in self.values:
-            return self.values[key]
-        return None
+        return self.values.get(key)
 
-    def first_of(self, *keys):
+    def first_of(self, *keys) -> str | None:
         """Like `get_value(a) or get_value(b) or ...`."""
-        value = None
         for key in keys:
-            value = self.get_value(key)
+            value = self.values.get(key)
             if value:
-                break
-        return value
+                return value
+        return None
 
     def starts_with(self, key):
         dictionary = {}
@@ -171,9 +165,7 @@ class SettingsProp:
         return [k for k in keys if k in self.values]
 
     def is_true(self, key: str) -> bool:
-        value = self.get_value(key)
-
-        return value in ('1', 'true')
+        return self.values.get(key) in ('1', 'true')
 
     def is_false(self, key: str) -> bool:
         return not self.is_true(key)
@@ -243,11 +235,11 @@ class SettingsProp:
             "ro.product.system.manufacturer",
             "ro.product.product.manufacturer")
 
-    def get_android_version(self):
-        codename = self.get_value("ro.build.version.codename")
-        known_codenames = self.get_value("ro.build.version.known_codenames")
+    def get_android_version(self) -> int | str | None:
+        codename = self.values.get("ro.build.version.codename")
+        known_codenames = self.values.get("ro.build.version.known_codenames")
         if known_codenames and codename and str(codename) in known_codenames:
-            return self.get_value("ro.build.version.codename")
+            return self.values.get("ro.build.version.codename")
 
         raw = self.first_of(
             "ro.system.build.version.release",
@@ -273,7 +265,7 @@ class SettingsProp:
             "ro.system.build.fingerprint")
 
     def get_build_flavor(self):
-        return self.get_value("ro.build.flavor")
+        return self.values.get("ro.build.flavor")
 
     def get_security_patch(self):
         return self.first_of(
@@ -289,16 +281,9 @@ class SettingsProp:
             "ro.system.build.version.incremental",
             "ro.product.build.version.incremental")
 
-    def get_board(self):
-        return self.first_of(
-            "ro.board.platform", "ro.product.board") or "unknown"
-
-    def get_oneui_version(self) -> str | None:
-        return self.get_value("ro.build.version.oneui")
-
     def get_hyperos_version(self) -> str:
         if self.exists("ro.mi.os.version.incremental"):
-            version = str(self.get_value("ro.mi.os.version.incremental"))
+            version = str(self.values.get("ro.mi.os.version.incremental"))
             return version.split('OS')[1]
 
         return ""
@@ -316,13 +301,13 @@ class StubLogger:
 
 
 class RomPorter:
-    PARTITION_NAMES: ClassVar[tuple[str, ...]] = DEFAULT_PARTITIONS
+    PARTITION_NAMES: ClassVar[list[str]] = DEFAULT_PARTITIONS
 
     def __init__(self, rom_name, variant_tag=""):
         self.images_dir = ""
         self.logger = StubLogger()
         self.image_files = {}
-        self.partition_dirs = {}
+        self.partition_dirs:dict[str, str] = {}
         self.rom_name = safe_name(rom_name, "rom_name")
         self.rom_type = "auto"
         self.variant_tag = variant_tag
@@ -457,8 +442,8 @@ class RomPorter:
             'voltageos': ['org.voltage.version'],
         }
 
-        system_prop = self._get_system_prop()
-        product_prop = self._get_product_prop()
+        system_prop = self._get_partition_prop("system")
+        product_prop = self._get_partition_prop("product")
 
         if self.override_rom_type != "default":
             self.rom_type = self.override_rom_type
@@ -466,21 +451,23 @@ class RomPorter:
 
         for rom, value in custom_rom_props.items():
             for prop in (system_prop, product_prop):
+                if not prop:
+                    continue
                 for key in value:
                     if prop.exists(key):
                         self.rom_type = rom
                         return
 
     def get_display_name(self):
-        self.android_version = self._get_android_version()
-        system_prop = self._get_system_prop()
-        product_prop = self._get_product_prop()
+        self.android_version = str(self._get_partition_prop("system").get_android_version())
+        system_prop = self._get_partition_prop("system")
+        product_prop = self._get_partition_prop("product")
 
         try:
             # OneUI
             if self.rom_type == "oneui":
                 # e.g. 60101 -> 6.1.1, 60100 -> 6.1
-                oneui_version = system_prop.get_oneui_version()
+                oneui_version = system_prop.values.get("ro.build.version.oneui")
                 if oneui_version and len(oneui_version) == 5:
                     oneui_major = oneui_version[0]
                     oneui_build = oneui_version[2]
@@ -585,6 +572,7 @@ class RomPorter:
                 def rising(key):
                     return (product_prop.get_value(key)
                             or system_prop.get_value(key))
+
                 return (f"RisingOS [{rising('ro.rising.version')}] "
                         f"({rising('ro.rising.releasetype')}, "
                         f"{rising('ro.rising.packagetype')})")
@@ -725,15 +713,15 @@ class RomPorter:
 
     def _patch_framework_jars(self):
         if not ((self.rom_type in ("miui", "hyperos")
-                 and self._is_android_14())
-                or (self.rom_type == "nothing" and self._is_android_13())):
+                 and self._is_android_version(14))
+                or (self.rom_type == "nothing" and self._is_android_version(13))):
             return
         with tempfile.TemporaryDirectory(prefix="framework-",
                                          dir=self.work_dir) as workdir:
             self._patch_frameworks(os.path.abspath(workdir))
 
     def _patch_xiaomi_frameworks(self, workdir):
-        if not self._is_android_14():
+        if not self._is_android_version(14):
             return
 
         # Fix of brightness bug that appears in ports from Xiaomi 14 (HyperOS 1.0 only)
@@ -775,7 +763,7 @@ class RomPorter:
         system = self._get_system_root()
         services_path = os.path.join(system, 'framework', 'services.jar')
 
-        if not self._is_android_13():
+        if not self._is_android_version(13):
             return
 
         out_dir = os.path.join(workdir, "services.jar.out")
@@ -844,8 +832,7 @@ class RomPorter:
     def _patch_frameworks(self, workdir):
         if self._is_xiaomi_rom():
             self._patch_xiaomi_frameworks(workdir)
-
-        if self.rom_type == 'nothing':
+        elif self.rom_type == 'nothing':
             self._patch_nothing_frameworks(workdir)
 
     def patch_init(self):
@@ -879,10 +866,8 @@ class RomPorter:
 
         # cbnz x20, #0x18; mov w0, #0x40  ->  mov w0, #0x38
         # (purpose of the patch is no longer known)
-        original = "D40000B500088052"
-        patched = "D40000B500078052"
 
-        self.hexpatch(path, original, patched)
+        self.hexpatch(path, "D40000B500088052", "D40000B500078052")
 
     def _patch_oplus(self, build_fingerprint, device, device_brand,
                      device_manufacturer, device_model, systemdir):
@@ -930,9 +915,9 @@ class RomPorter:
                 continue
 
             partition_dir = self.partition_dirs[partition]
-            partition_prop_path = partition_dir + "/build.prop"
+            partition_prop_path = f"{partition_dir}/build.prop"
             if not os.path.exists(partition_prop_path):
-                partition_prop_path = partition_dir + "/etc/build.prop"
+                partition_prop_path = f"{partition_dir}/etc/build.prop"
                 if not os.path.exists(partition_prop_path):
                     continue
 
@@ -957,7 +942,7 @@ class RomPorter:
                               f"{systemdir}/system/build.prop")
 
             system_prop = SettingsProp()
-            system_prop.init_from_file(systemdir + "/system/build.prop")
+            system_prop.init_from_file(f"{systemdir}/system/build.prop")
 
             self.props['system'] = system_prop
 
@@ -978,7 +963,7 @@ class RomPorter:
     def _patch_huawei(self, device, device_brand, device_codename,
                       device_manufacturer, device_model, system_dir):
         system = self._get_system_root()
-        system_prop = self._get_system_prop()
+        system_prop = self._get_partition_prop("system")
 
         preas = self.partition_dirs.get("preas")
         if preas:
@@ -1085,7 +1070,7 @@ class RomPorter:
         system = os.path.join(system_dir, "system")
 
         device_features_path = os.path.join(product, "etc/device_features")
-        if self._is_android_11():
+        if self._is_android_version(11):
             device_features_path = (f"{self.partition_dirs['system']}"
                                     "/mystic/device_features")
         elif not self._is_android_at_least(10):
@@ -1118,7 +1103,7 @@ class RomPorter:
                     os.path.join(system, 'build.prop'),
                     '\nro.miui.product.home=com.mi.android.globallauncher')
 
-    def _patch_zte(self, systemdir, vendor_prop: SettingsProp):
+    def _patch_zte(self, vendor_prop: SettingsProp):
         system_path = self._get_system_root()
 
         features_to_skip = [
@@ -1150,7 +1135,7 @@ class RomPorter:
         if system_ext:
             fsops.rmrf(os.path.join(system_ext, "bin/hw", audio_parser))
             fsops.rmrf(os.path.join(system_ext, "etc/init",
-                                    audio_parser + ".rc"))
+                                    f"{audio_parser}.rc"))
 
         # Replacing the boot animation with the dark variant.
         dark_bootanimation_path = os.path.join(
@@ -1173,51 +1158,26 @@ class RomPorter:
 
     # Multi-model firmware ships per-model props next to the generic one;
     # prefer the one matching the model the generic prop names.
-    def _get_odm_prop(self) -> SettingsProp | None:
-        if 'odm' in self.props:
-            return self.props['odm']
-
-        odm = self.partition_dirs.get("odm")
-        if not odm:
+    def _get_part_prop(self, part_name: str) -> SettingsProp | None:
+        if part_name in self.props:
+            return self.props[part_name]
+        part = self.partition_dirs.get(part_name)
+        if not part:
             return None
-
-        if not os.path.exists(os.path.join(odm, "etc/build.prop")):
+        if not os.path.exists(os.path.join(part, "etc/build.prop" if part_name == 'odm' else "build.prop")):
             return None
-
         prop = SettingsProp()
-        prop.init_from_file(os.path.join(odm, 'etc/build.prop'))
-
+        prop.init_from_file(os.path.join(part, 'etc/build.prop' if part_name == 'odm' else 'build.prop'))
         model = prop.get_device_model()
-        for name in (f"etc/{model}_build.prop", f"etc/{model}.build.prop"):
-            if os.path.exists(os.path.join(odm, name)):
-                prop.init_from_file(os.path.join(odm, name))
-                break
-
-        self.props['odm'] = prop
-
-        return prop
-
-    def _get_vendor_prop(self) -> SettingsProp | None:
-        if 'vendor' in self.props:
-            return self.props['vendor']
-
-        vendor = self.partition_dirs.get("vendor")
-        if not vendor:
-            return None
-
-        if not os.path.exists(os.path.join(vendor, "build.prop")):
-            return None
-
-        prop = SettingsProp()
-        prop.init_from_file(os.path.join(vendor, 'build.prop'))
-
-        model_prop = os.path.join(
-            vendor, f"build_{prop.get_device_model()}.prop")
-        if os.path.exists(model_prop):
-            prop.init_from_file(model_prop)
-
-        self.props['vendor'] = prop
-
+        if part_name == 'odm':
+            for name in (f"etc/{model}_build.prop", f"etc/{model}.build.prop"):
+                if os.path.exists(os.path.join(part, name)):
+                    prop.init_from_file(os.path.join(part, name))
+        else:
+            model_prop = os.path.join(part, f"build_{model}.prop")
+            if os.path.exists(model_prop):
+                prop.init_from_file(model_prop)
+        self.props[part_name] = prop
         return prop
 
     def _get_partition_prop(self, partition: str) -> SettingsProp | None:
@@ -1225,7 +1185,7 @@ class RomPorter:
             return None
 
         if partition == "odm":
-            return self._get_odm_prop()
+            return self._get_part_prop('odm')
 
         if partition in self.props:
             return self.props[partition]
@@ -1250,12 +1210,6 @@ class RomPorter:
 
         return None
 
-    def _get_system_prop(self) -> SettingsProp:
-        return cast(SettingsProp, self._get_partition_prop("system"))
-
-    def _get_product_prop(self) -> SettingsProp:
-        return cast(SettingsProp, self._get_partition_prop("product"))
-
     # This may help 32-64 bit devices to boot the 64-bit only systems.
     def _add_64bit_props(self):
         system = self._get_system_root()
@@ -1270,8 +1224,8 @@ class RomPorter:
                           'ro.product.cpu.abilist64=arm64-v8a')
 
     def _clean_build_props(self):
-        system_prop_path = self._get_system_prop().path
-        product_prop_path = self._get_product_prop().path
+        system_prop_path = self._get_partition_prop("system").path
+        product_prop_path = self._get_partition_prop("product").path
         system_ext_prop = self._get_partition_prop("system_ext")
 
         for prop in ('ro.build.system_root_image',
@@ -1324,12 +1278,6 @@ class RomPorter:
                     f"{', '.join(self.programs_32bit_only)})")
         return "32/64-bit"
 
-    def _get_android_version(self) -> str:
-        return str(self._get_system_prop().get_android_version())
-
-    def _get_android_sdk(self) -> str:
-        return str(self._get_system_prop().get_sdk_version())
-
     def _is_android_version(self, target: int | str) -> bool:
         ver = self.android_version
         target_str = str(target)
@@ -1339,57 +1287,18 @@ class RomPorter:
         if CODENAME_MAP.get(ver) == target_str:
             return True
 
-        sdk = self._get_android_sdk()
+        sdk = str(self._get_partition_prop("system").get_sdk_version())
         return SDK_MAP.get(target_str) == sdk
 
     def _is_android_at_least(self, minimal_version: int) -> bool:
         try:
-            ver = int(self._get_android_version())
+            ver = int(self._get_partition_prop("system").get_android_version())
             return ver >= minimal_version
         except (ValueError, TypeError):
             return False
 
-    def _is_android_at_least_11(self) -> bool:
-        return self._is_android_at_least(11)
-
-    def _is_android_at_least_12(self) -> bool:
-        return self._is_android_at_least(12)
-
-    def _is_android_at_least_13(self) -> bool:
-        return self._is_android_at_least(13)
-
-    def _is_android_at_least_14(self) -> bool:
-        return self._is_android_at_least(14)
-
-    def _is_android_at_least_15(self) -> bool:
-        return self._is_android_at_least(15)
-
-    def _is_android_at_least_16(self) -> bool:
-        return self._is_android_at_least(16)
-
-    def _is_android_at_least_17(self) -> bool:
-        return self._is_android_at_least(17)
-
-    def _is_android_11(self) -> bool:
-        return self._is_android_version(11)
-
-    def _is_android_12(self) -> bool:
-        return self._is_android_version(12)
-
-    def _is_android_13(self) -> bool:
-        return self._is_android_version(13)
-
-    def _is_android_14(self) -> bool:
-        return self._is_android_version(14)
-
-    def _is_android_15(self) -> bool:
-        return self._is_android_version(15)
-
-    def _is_android_16(self) -> bool:
-        return self._is_android_version(16)
-
-    def _is_android_17(self) -> bool:
-        return self._is_android_version(17)
+    # _is_android_at_least_11 == self._is_android_at_least(11)
+    # _is_android_11 == _is_android_version(11)
 
     def _first_prop(self, props, getter, default):
         for prop in props:
@@ -1399,74 +1308,43 @@ class RomPorter:
                     return val
         return default
 
-    def _get_build_fingerprint(self) -> str:
-        return self._first_prop(
-            (self._get_odm_prop(), self._get_product_prop(),
-             self._get_system_prop()),
-            SettingsProp.get_build_fingerprint, "")
-
-    def _get_build_type(self) -> str:
-        return self._first_prop(
-            (self._get_product_prop(), self._get_system_prop()),
-            SettingsProp.get_build_flavor, "")
-
-    def _get_build_id(self) -> str:
-        system_prop = self._get_system_prop()
-        return system_prop.get_build_id() or ""
-
-    def _get_security_patch(self) -> str:
-        system_prop = self._get_system_prop()
-        return system_prop.get_security_patch() or ""
-
-    def _get_build_tags(self) -> str:
-        return self._first_prop(
-            (self._get_odm_prop(), self._get_product_prop(),
-             self._get_system_prop()),
-            SettingsProp.get_build_tags, "")
-
-    def _get_device_brand(self) -> str:
-        return self._first_prop(
-            (self._get_odm_prop(), self._get_vendor_prop(),
-             self._get_product_prop(), self._get_system_prop()),
-            SettingsProp.get_device_brand, "unknown")
-
     def _get_device_model(self) -> str:
-        odm_prop = self._get_odm_prop()
+        odm_prop = self._get_part_prop('odm')
         if odm_prop:
             val = odm_prop.get_market_name() or odm_prop.get_device_model()
             if val:
                 return val
 
         return self._first_prop(
-            (self._get_vendor_prop(), self._get_product_prop(),
-             self._get_system_prop()),
+            (self._get_part_prop('vendor'), self._get_partition_prop("product"),
+             self._get_partition_prop("system")),
             SettingsProp.get_device_model, "unknown")
 
     def _get_device_codename(self) -> str:
         return self._first_prop(
-            (self._get_odm_prop(), self._get_product_prop(),
-             self._get_vendor_prop(), self._get_system_prop()),
+            (self._get_part_prop('odm'), self._get_partition_prop("product"),
+             self._get_part_prop('vendor'), self._get_partition_prop("system")),
             SettingsProp.get_device_name, "unknown")
 
     def _get_device_manufacturer(self) -> str:
         return self._first_prop(
-            (self._get_odm_prop(), self._get_system_prop(),
-             self._get_product_prop(), self._get_vendor_prop()),
+            (self._get_part_prop('odm'), self._get_partition_prop("system"),
+             self._get_partition_prop("product"), self._get_part_prop('vendor')),
             SettingsProp.get_device_manufacturer, "unknown")
 
     def _get_device(self) -> str:
         return self._first_prop(
-            (self._get_odm_prop(), self._get_vendor_prop(),
-             self._get_product_prop(), self._get_system_prop()),
+            (self._get_part_prop('odm'), self._get_part_prop('vendor'),
+             self._get_partition_prop("product"), self._get_partition_prop("system")),
             SettingsProp.get_device, "unknown")
 
     def _get_build_incremental(self) -> str:
         return self._first_prop(
-            (self._get_system_prop(), self._get_product_prop()),
+            (self._get_partition_prop("system"), self._get_partition_prop("product")),
             SettingsProp.get_build_incremental, "")
 
     def _apply_generic_patches(self):
-        android_version = self._get_android_version()
+        android_version = str(self._get_partition_prop("system").get_android_version())
         patch_path = os.path.join(patches_dir, 'all', android_version)
 
         if not os.path.exists(patch_path):
@@ -1476,8 +1354,8 @@ class RomPorter:
 
         system = self._get_system_root()
         system_ext = self.partition_dirs.get("system_ext")
-        system_prop_path = self._get_system_prop().path
-        product_prop_path = self._get_product_prop().path
+        system_prop_path = (self._get_partition_prop("system")).path
+        product_prop_path = (self._get_partition_prop("product")).path
 
         if os.path.exists(os.path.join(patch_path, 'system.prop')):
             fsops.append_file(os.path.join(patch_path, 'system.prop'),
@@ -1500,8 +1378,8 @@ class RomPorter:
     def _copy_missing_vndks(self):
         system_ext = self.partition_dirs.get("system_ext")
         system = self._get_system_root()
-        android_sdk = self._get_android_sdk()
-        android_version = self._get_android_version()
+        android_sdk = str(self._get_partition_prop("system").get_sdk_version())
+        android_version = str(self._get_partition_prop("system").get_android_version())
         if system_ext and os.path.exists(os.path.join(system_ext, 'apex')):
             fsops.cp_r(os.path.join(system_ext, 'apex'), system)
             fsops.rmrf(os.path.join(system_ext, 'apex'))
@@ -1517,8 +1395,8 @@ class RomPorter:
             fsops.cp_r(f"{vndk_path}/*", system, clobber=False)
 
     def _put_mystic_build_display_id(self):
-        system_prop = self._get_system_prop()
-        product_prop = self._get_product_prop()
+        system_prop = self._get_partition_prop("system")
+        product_prop = self._get_partition_prop("product")
 
         props = [
             'ro.build.display.id',
@@ -1548,7 +1426,7 @@ class RomPorter:
 
     def _configure_updatable_apexes(self):
         system = self._get_system_root()
-        system_prop_path = self._get_system_prop().path
+        system_prop_path = self._get_partition_prop("system").path
 
         apex_updatable = any(
             file.endswith(".apex")
@@ -1580,7 +1458,7 @@ class RomPorter:
 
     def _force_enable_usb_debugging(self):
         system = self._get_system_root()
-        prop_files = [self._get_system_prop().path]
+        prop_files = [self._get_partition_prop("system").path]
         prop_default = os.path.join(system, 'etc/prop.default')
         if os.path.exists(prop_default):
             prop_files.append(prop_default)
@@ -1591,23 +1469,20 @@ class RomPorter:
 
     def _determine_treble_compatibility(self):
         system = self._get_system_root()
-        system_prop = self._get_system_prop()
+        system_prop = self._get_partition_prop("system")
         if not system_prop.is_true('ro.treble.enabled'):
             self.log("This firmware isn't Treble supported but fine.")
             if os.path.exists(os.path.join(system, 'vendor')):
                 fsops.rmrf(os.path.join(system, 'vendor', '*'))
 
-    def _should_apply_init_patches(self):
-        return self.rom_type in ('magicos', 'emui', 'harmonyos', 'pixel')
-
     def _apply_rom_patches(self):
         self._detect_rom_type()
 
-        android_version = str(self._get_android_version())
-        android_sdk = str(self._get_android_sdk())
+        android_version = str(self._get_partition_prop("system").get_android_version())
+        android_sdk = str(self._get_partition_prop("system").get_sdk_version())
         system = self._get_system_root()
-        system_prop = self._get_system_prop()
-        product_prop = self._get_product_prop()
+        system_prop = self._get_partition_prop("system")
+        product_prop = self._get_partition_prop("product")
         system_ext_prop = self._get_partition_prop("system_ext")
         system_ext = self.partition_dirs.get("system_ext")
         product = self.partition_dirs["product"]
@@ -1646,7 +1521,7 @@ class RomPorter:
             else:
                 self.log(f"No init for {android_version}; patching stock init")
                 self.patch_init()
-        elif self._should_apply_init_patches():
+        elif self.rom_type in ('magicos', 'emui', 'harmonyos', 'pixel'):
             self.patch_init()
 
         system_prop_file = os.path.join(rom_patches_dir, "system.prop")
@@ -1790,16 +1665,23 @@ class RomPorter:
             system = self._get_system_root()
             system_dir = self.partition_dirs['system']
             vendor = self.partition_dirs.get("vendor")
-            vendor_prop = self._get_vendor_prop()
+            vendor_prop = self._get_part_prop('vendor')
 
-            android_version = self._get_android_version()
-            android_sdk = self._get_android_sdk()
-            build_fingerprint = self._get_build_fingerprint()
-            build_type = self._get_build_type()
-            build_id = self._get_build_id()
-            security_patch = self._get_security_patch()
-            build_tags = self._get_build_tags()
-            device_brand = self._get_device_brand()
+            android_version = str(self._get_partition_prop("system").get_android_version())
+            android_sdk = str(self._get_partition_prop("system").get_sdk_version())
+            build_fingerprint = self._first_prop(
+                (self._get_part_prop('odm'), self._get_partition_prop("product"), self._get_partition_prop("system")),
+                SettingsProp.get_build_fingerprint, "")
+            build_type = self._first_prop((self._get_partition_prop("product"), self._get_partition_prop("system")),
+                                          SettingsProp.get_build_flavor, "")
+            build_id = self._get_partition_prop("system").get_build_id() or ""
+            security_patch = self._get_partition_prop("system").get_security_patch() or ""
+            build_tags = self._first_prop(
+                (self._get_part_prop('odm'), self._get_partition_prop("product"), self._get_partition_prop("system")),
+                SettingsProp.get_build_tags, "")
+            device_brand = self._first_prop(
+                (self._get_part_prop('odm'), self._get_part_prop('vendor'), self._get_partition_prop("product"),
+                 self._get_partition_prop("system")), SettingsProp.get_device_brand, "unknown")
             device_model = self._get_device_model()
             device_codename = self._get_device_codename()
             device_manufacturer = self._get_device_manufacturer()
@@ -1809,8 +1691,8 @@ class RomPorter:
             self.device_codename = device
             self.android_version = android_version
             self.build_incremental = self._get_build_incremental()
-            self.system_prop = self._get_system_prop()
-            self.product_prop = self._get_product_prop()
+            self.system_prop = self._get_partition_prop("system")
+            self.product_prop = self._get_partition_prop("product")
 
             self.log(f"Patching Android {self.android_version} firmware")
 
@@ -1850,9 +1732,9 @@ class RomPorter:
             self._drop_selinux_mappings()
 
             if self._is_zte_rom() and vendor_prop:
-                self._patch_zte(system_dir, vendor_prop)
+                self._patch_zte(vendor_prop)
 
-            if self._is_google_pixel_rom():
+            if self.rom_type in ['pixel']:
                 self._patch_google()
 
             if self._is_xiaomi_rom():
@@ -1897,15 +1779,12 @@ Architecture: {self._architecture()}
     def _get_board(self) -> str:
         vendor_prop = self._get_partition_prop("vendor")
         if vendor_prop:
-            return vendor_prop.get_board()
+            return vendor_prop.first_of("ro.board.platform", "ro.product.board") or "unknown"
 
         return "unknown"
 
     def _is_xiaomi_rom(self):
         return self.rom_type in ('miui', 'hyperos', 'joyui')
-
-    def _is_google_pixel_rom(self):
-        return self.rom_type in ('pixel')
 
     def _is_zte_rom(self):
         # NebulaOS isn't ZTE but takes the same patches.
@@ -2034,7 +1913,7 @@ Architecture: {self._architecture()}
         if system_size is None:
             return None
 
-        stale_zip = self.output_path + ".zip"
+        stale_zip = f"{self.output_path}.zip"
         if os.path.exists(stale_zip):
             os.remove(stale_zip)
         self._set_recorded_size(f"out/{self.rom_name}/output.txt",
@@ -2054,7 +1933,7 @@ Architecture: {self._architecture()}
             f.write(replace_image_size(text, system_size))
 
     def compress_output(self):
-        destination = self.output_path + ".zip"
+        destination = f"{self.output_path}.zip"
         try:
             with tempfile.TemporaryDirectory(
                     prefix="compress-",
@@ -2065,7 +1944,7 @@ Architecture: {self._architecture()}
                                      compression=zipfile.ZIP_DEFLATED,
                                      compresslevel=6,
                                      allowZip64=True) as package:
-                    package.write(self.output_path + ".img",
+                    package.write(f"{self.output_path}.img",
                                   arcname="system.img")
 
                 if (not os.path.isfile(archive)

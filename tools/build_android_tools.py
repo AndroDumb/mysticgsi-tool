@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import buildlock  # noqa: E402
 
-VERSION = "35.0.2"
-SHA256 = "d2c3222280315f36d8bfa5c02d7632b47e365bfe2e77e99a3564fb6576f04097"
+VERSION = "37.0.0"
+SHA256 = "2725d09f892a3a38e534429f47a321f58ecf6a3169caa42c915fb2cb7d46be0e"
 URL = ("https://github.com/nmeum/android-tools/releases/download/"
        f"{VERSION}/android-tools-{VERSION}.tar.xz")
 TARGETS = ("e2fsdroid", "mke2fs.android")
@@ -113,7 +113,7 @@ def build():
 
     DESTINATION.mkdir(parents=True, exist_ok=True)
     for name in TARGETS:
-        staged = DESTINATION / (name + ".new")
+        staged = DESTINATION / f"{name}.new"
         shutil.copy2(build_dir / "vendor" / name, staged)
         staged.replace(DESTINATION / name)
     print(f"Native image tools installed in {DESTINATION}")
