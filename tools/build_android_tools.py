@@ -2,7 +2,7 @@
 """
 Builds mke2fs.android and e2fsdroid from nmeum/android-tools into tools/bin,
 for hosts with no packaged copy (macOS, Debian/Ubuntu).
-setup.sh installs the build dependencies.
+setup_host.py installs the build dependencies.
 """
 
 import hashlib
@@ -65,6 +65,13 @@ def patch_for_darwin(vendor: Path):
                  "if(TRUE)\nadd_executable(e2fsdroid")
     replace_once(vendor / "CMakeLists.adb.txt",
                  "if (NOT APPLE AND NOT WIN32)", "if (NOT WIN32)")
+    # Homebrew's protobuf include dir is /opt/homebrew/include, added ahead
+    # of the vendored headers; stale copies of those there (e.g. an old
+    # libsparse sparse/sparse.h) would shadow them. As a system include it
+    # is searched last.
+    replace_once(vendor / "CMakeLists.txt",
+                 "include_directories(${PROTOBUF_INCLUDE_DIRS})",
+                 "include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})")
     # Upstream omits e2fsdroid/fs_config on Darwin because the SDK has no
     # linux/capability.h. Supply only the on-disk metadata definitions used
     # by these tools, keeping SELinux labels and Android permissions intact.
@@ -76,7 +83,7 @@ def build():
     missing = [c for c in REQUIRED_COMMANDS if not shutil.which(c)]
     if missing:
         raise RuntimeError(
-            f"Missing {', '.join(missing)}; run ./setup.sh first")
+            f"Missing {', '.join(missing)}; run ./setup_host.py first")
 
     cache = ROOT / "tmp" / "android-tools-src"
     cache.mkdir(parents=True, exist_ok=True)
