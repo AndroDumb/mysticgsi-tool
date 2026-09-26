@@ -5,7 +5,7 @@ Cross-platform firmware extraction, filesystem unpacking, and image building.
 
 from .extractor import extract_firmware
 from .fs import detect_filesystem, read_labels, unpack_filesystem
-from .image import build_system_image
+from .image import build_system_image, sign_system_image
 from .host import check_environment
 
 __all__ = [
@@ -14,5 +14,6 @@ __all__ = [
     "unpack_filesystem",
     "read_labels",
     "build_system_image",
+    "sign_system_image",
     "check_environment",
 ]

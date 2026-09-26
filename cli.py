@@ -26,6 +26,7 @@ STATES = {
     "patch": "patching",
     "prepare": "preparing",
     "mke2fs": "making image",
+    "sign": "signing image",
     "done": "done",
 }
 

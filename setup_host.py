@@ -29,7 +29,7 @@ APKTOOL_RELEASE = ("https://api.github.com/repos/iBotPeaches/Apktool/"
 BREW_PACKAGES = [
     "python@3.13", "cmake", "ninja", "pkgconf", "erofs-utils", "brotli",
     "lz4", "pcre2", "libusb", "zstd", "protobuf", "aria2", "apktool",
-    "gpatch",
+    "gpatch", "openssl@3",
 ]
 
 APT_PACKAGES = [
@@ -39,11 +39,11 @@ APT_PACKAGES = [
     "build-essential", "cmake", "ninja-build", "pkg-config", "perl",
     "golang-go", "libgtest-dev", "libusb-1.0-0-dev", "libpcre2-dev",
     "libprotobuf-dev", "protobuf-compiler", "libbrotli-dev", "liblz4-dev",
-    "libzstd-dev",
+    "libzstd-dev", "openssl",
 ]
 PACMAN_PACKAGES = [
     "python", "python-pip", "erofs-utils", "aria2", "patch",
-    "android-tools", "curl",
+    "android-tools", "curl", "openssl",
 ]
 # The source package builds apktool with its own JDK and Gradle.
 AUR_APKTOOL = "android-apktool-bin"

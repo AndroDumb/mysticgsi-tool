@@ -17,7 +17,7 @@ TOOL_ALIASES = {
     "mke2fs": ("mke2fs.android", "mke2fs"),
 }
 
-REQUIRED_TOOLS = ("mke2fs", "e2fsdroid")
+REQUIRED_TOOLS = ("mke2fs", "e2fsdroid", "openssl")
 
 
 def _brew_paths():
@@ -32,6 +32,7 @@ def _brew_paths():
         f"{prefix}/opt/e2fsprogs/sbin",
         f"{prefix}/opt/e2fsprogs/bin",
         f"{prefix}/opt/gpatch/libexec/gnubin",
+        f"{prefix}/opt/openssl@3/bin",
     ]
 
 
