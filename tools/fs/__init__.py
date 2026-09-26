@@ -11,6 +11,7 @@ from .detect import detect_filesystem
 from .erofs import extract_erofs
 from .ext4 import extract_ext4
 from .f2fs import extract_f2fs
+from .labels import read_labels
 
 
 def unpack_filesystem(
@@ -57,4 +58,5 @@ __all__ = [
     "extract_ext4",
     "extract_erofs",
     "extract_f2fs",
+    "read_labels",
 ]

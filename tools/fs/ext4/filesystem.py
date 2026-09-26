@@ -49,7 +49,9 @@ EXTENT_MAGIC = 0xF30A
 EXTENT_MAX_DEPTH = 5
 EXTENT_UNINIT_BASE = 32768
 
-XATTR_IBODY_MAGIC = 0xEA020000
+XATTR_MAGIC = 0xEA020000
+XATTR_BLOCK_HEADER = 32
+XATTR_INDEX_SECURITY = 6
 XATTR_INDEX_SYSTEM = 7
 
 
@@ -73,8 +75,10 @@ class Inode:
         (self.mode, uid_lo, size_lo, atime, _, mtime, _, gid_lo, _, _,
          self.flags) = struct.unpack_from('<HHIiiiIHHII', raw)
         self.i_block = raw[0x28:0x64]
+        file_acl_lo, = struct.unpack_from('<I', raw, 0x68)
         size_hi, = struct.unpack_from('<I', raw, 0x6C)
-        uid_hi, gid_hi = struct.unpack_from('<HH', raw, 0x78)
+        file_acl_hi, uid_hi, gid_hi = struct.unpack_from('<HHH', raw, 0x76)
+        self.file_acl = file_acl_lo | file_acl_hi << 32
         self.size = size_lo | size_hi << 32
         self.uid = uid_lo | uid_hi << 16
         self.gid = gid_lo | gid_hi << 16
@@ -339,30 +343,55 @@ class Ext4Filesystem:
             offset = logical * bs
             yield offset, physical * bs, min(count * bs, size - offset)
 
-    def _system_data_xattr(self, inode):
+    @staticmethod
+    def _find_xattr(buf, pos, base, index, name, what):
+        """Value of xattr index/name in the entry list at buf[pos:], whose
+        value offsets are relative to base, or None."""
+        while pos + 16 <= len(buf):
+            name_len, e_index, value_offs, value_inum, value_size = (
+                struct.unpack_from('<BBHII', buf, pos))
+            if not (name_len or e_index or value_offs or value_inum):
+                break
+            if (e_index == index
+                    and buf[pos + 16:pos + 16 + name_len] == name):
+                if value_inum:
+                    raise Ext4Error(f"{what} in an EA inode is not "
+                                    "supported")
+                end = base + value_offs + value_size
+                if end > len(buf):
+                    raise Ext4Error(f"corrupt {what} xattr")
+                return buf[base + value_offs:end]
+            pos += (16 + name_len + 3) & ~3
+        return None
+
+    def _ibody_xattr(self, inode, index, name, what):
         raw = inode.raw
         start = 128 + inode.extra_isize
         if (start + 4 > len(raw) or struct.unpack_from(
-                '<I', raw, start)[0] != XATTR_IBODY_MAGIC):
-            return b''
+                '<I', raw, start)[0] != XATTR_MAGIC):
+            return None
         # In-inode value offsets are relative to the first entry.
-        base = pos = start + 4
-        while pos + 16 <= len(raw):
-            name_len, index, value_offs, value_inum, value_size = (
-                struct.unpack_from('<BBHII', raw, pos))
-            if not (name_len or index or value_offs or value_inum):
-                break
-            name = raw[pos + 16:pos + 16 + name_len]
-            if index == XATTR_INDEX_SYSTEM and name == b'data':
-                if value_inum:
-                    raise Ext4Error("inline data in an EA inode is not "
-                                    "supported")
-                end = base + value_offs + value_size
-                if end > len(raw):
-                    raise Ext4Error("corrupt inline data xattr")
-                return raw[base + value_offs:end]
-            pos += (16 + name_len + 3) & ~3
-        return b''
+        return self._find_xattr(raw, start + 4, start + 4, index, name,
+                                what)
+
+    def _system_data_xattr(self, inode):
+        return self._ibody_xattr(inode, XATTR_INDEX_SYSTEM, b'data',
+                                 "inline data") or b''
+
+    def selinux_label(self, inode):
+        """The inode's security.selinux value (without the trailing NUL),
+        or None if it has none."""
+        what = "SELinux label"
+        value = self._ibody_xattr(inode, XATTR_INDEX_SECURITY, b'selinux',
+                                  what)
+        if value is None and inode.file_acl:
+            block = self._read_block(inode.file_acl)
+            if struct.unpack_from('<I', block)[0] == XATTR_MAGIC:
+                # Block value offsets are relative to the block start.
+                value = self._find_xattr(block, XATTR_BLOCK_HEADER, 0,
+                                         XATTR_INDEX_SECURITY, b'selinux',
+                                         what)
+        return None if value is None else value.rstrip(b'\0')
 
     def _inline_data(self, inode):
         data = inode.i_block + self._system_data_xattr(inode)
