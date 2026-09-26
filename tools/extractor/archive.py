@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import tarfile
+import tempfile
 import zipfile
 
 try:
@@ -76,7 +77,7 @@ def extract_archive(
     if lower.endswith('.7z'):
         return _extract_7z(archive_path, output_dir, filter_func)
 
-    return _extract_host_7z(archive_path, output_dir)
+    return _extract_host(archive_path, output_dir)
 
 
 def _claim(output_dir: str, member: str, claimed: Set[str], logger):
@@ -193,19 +194,50 @@ def _extract_7z(
         except Exception:
             pass
 
-    return _extract_host_7z(seven_z_path, output_dir)
+    return _extract_host(seven_z_path, output_dir)
 
 
-def _extract_host_7z(archive_path: str, output_dir: str) -> List[str]:
-    seven_z = (shutil.which("7z") or shutil.which("7za")
-               or shutil.which("7zr"))
-    if not seven_z:
-        return []
+def _host_extractors(archive_path: str):
+    """(name, argv builder) for each archive tool on this host, best
+    first."""
+    seven_z = [(name, lambda a, o, t=path: [t, "x", "-y", f"-o{o}", a])
+               for name, path in ((n, shutil.which(n))
+                                  for n in ("7zz", "7z", "7za", "7zr"))
+               if path]
+    bsdtar = shutil.which("bsdtar")
+    libarchive = ([("bsdtar", lambda a, o: [bsdtar, "-xf", a, "-C", o])]
+                  if bsdtar else [])
+    # Homebrew's and distros' 7-Zip builds leave out the non-free RAR
+    # decoder; libarchive reads RAR and RAR5.
+    if archive_path.lower().endswith('.rar'):
+        return libarchive + seven_z
+    return seven_z + libarchive
 
-    cmd = [seven_z, "x", "-y", f"-o{output_dir}", archive_path]
-    rc = subprocess.run(
-        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
-    if rc != 0:
-        return []
-    return [os.path.join(root, f)
-            for root, _, files in os.walk(output_dir) for f in files]
+
+def _extract_host(archive_path: str, output_dir: str) -> List[str]:
+    """
+    Extracts with the first host tool that succeeds. Each attempt goes to
+    a scratch directory that is only moved into output_dir on success, so
+    a tool failing halfway leaves no truncated files behind.
+    """
+    tried = []
+    for name, argv in _host_extractors(archive_path):
+        scratch = tempfile.mkdtemp(prefix=".extract-", dir=output_dir)
+        try:
+            rc = subprocess.run(argv(archive_path, scratch),
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL).returncode
+            if rc == 0:
+                for entry in os.listdir(scratch):
+                    target = os.path.join(output_dir, entry)
+                    shutil.move(os.path.join(scratch, entry), target)
+                return [os.path.join(root, f)
+                        for root, _, files in os.walk(output_dir)
+                        for f in files]
+            tried.append(f"{name} (exit {rc})")
+        finally:
+            shutil.rmtree(scratch, ignore_errors=True)
+    raise RuntimeError(
+        f"cannot extract {os.path.basename(archive_path)}: "
+        + (", ".join(tried) + " failed" if tried
+           else "no 7-Zip or bsdtar found"))

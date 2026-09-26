@@ -51,7 +51,8 @@ brew install python@3.13 cmake ninja pkgconf erofs-utils brotli lz4 \
 sudo apt-get install python3 python3-venv erofs-utils aria2 patch \
     default-jre-headless curl build-essential cmake ninja-build pkg-config \
     perl golang-go libgtest-dev libusb-1.0-0-dev libpcre2-dev \
-    libprotobuf-dev protobuf-compiler libbrotli-dev liblz4-dev libzstd-dev
+    libprotobuf-dev protobuf-compiler libbrotli-dev liblz4-dev libzstd-dev \
+    libarchive-tools
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python tools/build_android_tools.py

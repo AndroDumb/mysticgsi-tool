@@ -35,6 +35,7 @@ BREW_PACKAGES = [
 APT_PACKAGES = [
     "python3", "python3-venv", "python3-pip", "erofs-utils", "aria2",
     "patch", "default-jre-headless", "curl", "ca-certificates",
+    "libarchive-tools",
     "build-essential", "cmake", "ninja-build", "pkg-config", "perl",
     "golang-go", "libgtest-dev", "libusb-1.0-0-dev", "libpcre2-dev",
     "libprotobuf-dev", "protobuf-compiler", "libbrotli-dev", "liblz4-dev",
