@@ -1412,10 +1412,11 @@ class RomPorter:
         ]
 
         for prop in (system_prop, product_prop):
-            build_id_key = prop.exists_any(props)[0]
-            build_id_value = "Ported.Using.MysticGSI.Tool"
-
-            fsops.set_props(prop.path, build_id_key, build_id_value)
+            # A product build.prop may be empty (see patch()).
+            keys = prop.exists_any(props)
+            if keys:
+                fsops.set_props(prop.path, keys[0],
+                                "Ported.Using.MysticGSI.Tool")
 
     def _nuke_ab_files(self):
         system = self._get_system_root()
