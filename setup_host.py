@@ -3,7 +3,7 @@
 Installs MysticGSI's dependencies on macOS, Debian/Ubuntu, Arch and NixOS.
 
   ./setup_host.py          runtime dependencies
-  ./setup_host.py --dev    plus pytest and flake8
+  ./setup_host.py --dev    plus pytest and Ruff
 
 Safe to re-run: package managers skip what is installed, and the native
 image tools are only rebuilt when missing.
