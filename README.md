@@ -1,8 +1,8 @@
 # MysticGSI
 
-*A tool to build a GSI (Generic System Image) from stock Android firmware.*
+A tool to build a GSI (Generic System Image) from stock Android firmware.
 
-*Supported firmware:*
+Supported firmware: 
 - full OTA zips (`payload.bin`)  
 - fastboot packages  
 - `super.img`, sparse images  
