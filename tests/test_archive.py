@@ -1,4 +1,6 @@
 import os
+import shlex
+import shutil
 
 import pytest
 
@@ -17,7 +19,11 @@ def _tool(bin_dir, name, body):
     os.chmod(path, 0o755)
 
 
-def test_failed_tool_leaves_nothing_and_the_next_one_is_tried(tmp_path, monkeypatch):
+def test_failed_tool_leaves_nothing_and_the_next_one_is_tried(
+    tmp_path, monkeypatch
+):
+    mkdir = shutil.which("mkdir")
+    assert mkdir is not None
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     # bsdtar -xf <archive> -C <dir>: writes a truncated file, then fails.
@@ -26,7 +32,8 @@ def test_failed_tool_leaves_nothing_and_the_next_one_is_tried(tmp_path, monkeypa
     _tool(
         bin_dir,
         "7zz",
-        'd="${3#-o}"; /bin/mkdir -p "$d/dload"; printf good > "$d/dload/update.zip"\n',
+        f'd="${{3#-o}}"; {shlex.quote(mkdir)} -p "$d/dload"; '
+        'printf good > "$d/dload/update.zip"\n',
     )
     monkeypatch.setenv("PATH", str(bin_dir))
     out = tmp_path / "out"
