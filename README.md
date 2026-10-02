@@ -28,7 +28,7 @@ On macOS, install Homebrew and Xcode Command Line Tools first.
 
 ```sh
 git clone https://github.com/MysticGSI/mysticgsi.git && cd mysticgsi
-./setup_host.py     # add --dev to install pytest and Ruff
+./setup_host.py     # add --dev to install Ruff
 ```
 
 On macOS, Debian/Ubuntu and Arch, the script installs system packages and
@@ -134,7 +134,6 @@ Example:
 See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ```sh
-.venv/bin/python -m pytest tests -q
 .venv/bin/ruff check .
 ```
 

@@ -23,7 +23,6 @@
             brotli
             pycryptodome     # OZIP decryption
             py7zr
-            pytest
             ruff
           ]);
 
@@ -45,7 +44,6 @@
               export PYTHONPATH="$PWD''${PYTHONPATH:+:$PYTHONPATH}"
               export PYTHONDONTWRITEBYTECODE=1
               echo "mysticgsi dev shell -- $(python3 --version)"
-              echo "  run the tests:  python3 -m pytest tests -q"
             '';
           };
         });
