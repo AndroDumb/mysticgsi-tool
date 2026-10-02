@@ -1,4 +1,5 @@
 import json
+import lzma
 import os
 import shutil
 from pathlib import Path
@@ -60,15 +61,26 @@ def test_rom_detection_uses_honor_partition_and_respects_precedence(tmp_path):
     assert porter.rom_type == "pixel"
 
 
-def test_missing_vndks_merge_without_replacing_stock(tmp_path, monkeypatch):
+@pytest.mark.parametrize("existing_apex", [False, True])
+def test_missing_vndks_merge_without_replacing_stock(
+    tmp_path, monkeypatch, existing_apex,
+):
     monkeypatch.chdir(tmp_path)
     system = tmp_path / "system"
-    (system / "apex").mkdir(parents=True)
-    (system / "apex/stock.apex").write_bytes(b"stock")
+    if existing_apex:
+        (system / "apex").mkdir(parents=True)
+        (system / "apex/stock.apex").write_bytes(b"stock")
     patches = tmp_path / "patches/vndk/32"
     (patches / "apex").mkdir(parents=True)
-    (patches / "apex/stock.apex").write_bytes(b"replacement")
+    (patches / "apex/stock.apex.xz").write_bytes(
+        lzma.compress(b"replacement")
+    )
     (patches / "apex/missing.apex").write_bytes(b"missing")
+    (patches / "apex/packed.apex.xz").write_bytes(lzma.compress(b"packed"))
+    split = lzma.compress(b"split")
+    midpoint = len(split) // 2
+    (patches / "apex/split.apex.xz.000").write_bytes(split[:midpoint])
+    (patches / "apex/split.apex.xz.001").write_bytes(split[midpoint:])
     (patches / "etc/nested").mkdir(parents=True)
     (patches / "etc/nested/libraries.txt").write_text("libraries")
     (system / "etc/nested").mkdir(parents=True)
@@ -83,9 +95,15 @@ def test_missing_vndks_merge_without_replacing_stock(tmp_path, monkeypatch):
     monkeypatch.setattr(porter, "_get_partition_prop", lambda part: prop)
 
     porter._copy_missing_vndks()
+    porter._copy_missing_vndks()
 
-    assert (system / "apex/stock.apex").read_bytes() == b"stock"
+    expected_stock = b"stock" if existing_apex else b"replacement"
+    assert (system / "apex/stock.apex").read_bytes() == expected_stock
     assert (system / "apex/missing.apex").read_bytes() == b"missing"
+    assert (system / "apex/packed.apex").read_bytes() == b"packed"
+    assert (system / "apex/split.apex").read_bytes() == b"split"
+    assert not list(system.rglob("*.xz*"))
+    assert len(list(patches.rglob("*.xz*"))) == 4
     assert (system / "etc/nested/libraries.txt").read_text() == "libraries"
     assert (system / "etc/nested/stock.txt").read_text() == "stock"
 

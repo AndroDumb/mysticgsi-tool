@@ -170,8 +170,13 @@ def copy_file(src, dst):
     return True
 
 
-def cp_r(src, dst, *, clobber=True):
+def cp_r(src, dst, *, clobber=True, exclude=None):
+    def ignore(directory, names):
+        return [name for name in names if exclude(name)]
+
     for s in expand(src):
+        if exclude and exclude(os.path.basename(s)):
+            continue
         if not os.path.lexists(s):
             continue
         target = _target(s, dst)
@@ -183,7 +188,10 @@ def cp_r(src, dst, *, clobber=True):
                 and not os.path.islink(target)
             ):
                 for name in os.listdir(s):
-                    cp_r(os.path.join(s, name), target, clobber=False)
+                    cp_r(
+                        os.path.join(s, name), target,
+                        clobber=False, exclude=exclude,
+                    )
             continue
         if os.path.islink(s):
             if os.path.lexists(target):
@@ -191,7 +199,10 @@ def cp_r(src, dst, *, clobber=True):
             mkdirp(os.path.dirname(target))
             os.symlink(os.readlink(s), target)
         elif os.path.isdir(s):
-            shutil.copytree(s, target, symlinks=True, dirs_exist_ok=clobber)
+            shutil.copytree(
+                s, target, symlinks=True, dirs_exist_ok=clobber,
+                ignore=ignore if exclude else None,
+            )
         else:
             mkdirp(os.path.dirname(target))
             if os.path.lexists(target):

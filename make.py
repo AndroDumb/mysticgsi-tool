@@ -9,7 +9,7 @@ from typing import ClassVar
 
 import fsops
 import tools
-from assets import ensure_extracted
+from assets import ensure_extracted, is_packed
 from tools.config import DEFAULT_PARTITIONS
 from tools.isa import find_cpu_features
 
@@ -1735,7 +1735,10 @@ class RomPorter:
 
         if os.path.exists(vndk_path):
             ensure_extracted(vndk_path, self.log)
-            fsops.cp_r(f"{vndk_path}/*", system, clobber=False)
+            fsops.cp_r(
+                f"{vndk_path}/*", system,
+                clobber=False, exclude=is_packed,
+            )
 
     def _put_mystic_build_display_id(self):
         system_prop = self._get_partition_prop("system")
